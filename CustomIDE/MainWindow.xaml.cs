@@ -8,6 +8,7 @@ using System.Diagnostics;
 using Newtonsoft.Json;
 using System.Windows.Input;
 using System.Linq;
+using System.Windows.Controls;
 
 namespace CustomIDE {
 
@@ -16,6 +17,7 @@ namespace CustomIDE {
         string current_file_path;
         Process CodeRunner;
         Options options;
+        int lines_count = 1;
 
         public MainWindow() {
             InitializeComponent();
@@ -25,7 +27,7 @@ namespace CustomIDE {
             options.UpdateSettings("Python", options.CheckPythonInstallation());
             options.UpdateSettings("Ampy", options.CeckAmpyInstallation());
 
-            SetCodeBoxText(File.ReadAllText(current_file_path));        
+            SetCodeBoxText(File.ReadAllText(current_file_path));
         }
 
         private void OpenFileClick(object sender, RoutedEventArgs e) {
@@ -37,7 +39,7 @@ namespace CustomIDE {
 
         private string SelectFile() {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            if ((bool) !openFileDialog.ShowDialog())
+            if ((bool)!openFileDialog.ShowDialog())
                 return null;
             current_file_path = openFileDialog.FileName;
             return current_file_path;
@@ -85,9 +87,10 @@ namespace CustomIDE {
 
             CodeRunner.OutputDataReceived += new DataReceivedEventHandler((s, e) => {
                 Dispatcher.Invoke(() => {
-                    if (e.Data == null)
+                    if (e.Data == null) {
+                        StopBut.IsEnabled = false;
                         OutputBox.Text += "\n\n[Done]";
-                    else
+                    } else
                         OutputBox.Text += e.Data.ToString();
                 });
             });
@@ -120,6 +123,7 @@ namespace CustomIDE {
                 MessageBox.Show("Install adafruit-ampy first", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
+            StopBut.IsEnabled = true;
             RunTerminalCommand("ampy", "--port " + options.settings["COM"] + " run " + current_file_path);
         }
 
@@ -138,24 +142,42 @@ namespace CustomIDE {
             Application.Current.Shutdown();
         }
 
-        private void CodeBoxKeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
-           if (e.Key == Key.Return) {
-                int lines = GetCodeBoxText().Split('\n').Length;
-                if (lines == 1)
-                    lines = 2;
+        private void CodeBoxTextChange(object sender, System.Windows.Controls.TextChangedEventArgs e) {
+            int line_breaks = GetCodeBoxText().Split('\n').Length - 1;
 
-                LineNumsBox.Text = "1\n";
-                for(int i = 2; i <= lines; i++)
-                    LineNumsBox.Text += i + "\n";
+            if (lines_count == line_breaks)
+                return;
+
+            lines_count = line_breaks;
+
+            LineNumsBox.Text = "1\n";
+            for (int i = 2; i <= lines_count; i++) {
+                LineNumsBox.Text += i + "\n";
             }
+        }
 
-            if (e.Key == Key.Back) {
-                int lines = GetCodeBoxText().Split('\n').Length - 2;
+        private void CodeBoxKeyDown(object sender, KeyEventArgs e) {
 
-                LineNumsBox.Text = "1\n";
-                for (int i = 2; i <= lines; i++)
-                    LineNumsBox.Text += i + "\n";
-            }
+        }
+
+        private void CodeBoxScrollChanged(object sender, ScrollChangedEventArgs e) {
+            NumsScroller.ScrollToVerticalOffset(e.VerticalOffset);
+        }
+
+        private void Window_MouseDown(object sender, MouseButtonEventArgs e) {
+            if (e.ChangedButton != MouseButton.Left)
+                return;
+            Point mouse_pos = Mouse.GetPosition(TitleBar);
+            if (mouse_pos.Y < TitleBar.ActualHeight && mouse_pos.X < TitleBar.ActualWidth)
+                DragMove();
+        }
+
+        private void MinimizeClick(object sender, RoutedEventArgs e) {
+            WindowState = WindowState.Minimized;
+        }
+
+        private void CloseClick(object sender, RoutedEventArgs e) {
+            Close();
         }
     }
 }

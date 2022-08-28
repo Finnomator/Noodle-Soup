@@ -5,26 +5,83 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CustomIDE"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Background="Black" Closed="WindowCloses">
+        Title="Custom IDE" Height="653" Width="1094" Background="Black" Closed="WindowCloses" WindowStyle="None" AllowsTransparency="True" MouseDown="Window_MouseDown">
+
+    <Window.Resources>
+        <Style TargetType="Button" x:Key="StandartButton" >
+            <Setter Property="BorderThickness" Value="1,1,1,1"/>
+            <Setter Property="HorizontalAlignment" Value="Left"/>
+            <Setter Property="VerticalAlignment" Value="Top"/>
+            <Setter Property="Background" Value="{x:Null}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontFamily" Value="Cascadia Mono"/>
+            <Setter Property="BorderBrush" Value="{x:Null}"/>
+            <Setter Property="Panel.ZIndex" Value="1"/>
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="{x:Type Button}">
+                        <Border Background="{TemplateBinding Background}">
+                            <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="Gray"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
+
     <Grid Background="#FF101010">
-        <RichTextBox x:Name="CodeBox" Margin="137,29,0,104" FontFamily="Cascadia Code" Foreground="White" BorderThickness="1,0,0,1" UndoLimit="1000" AcceptsReturn="True" AcceptsTab="True" Background="#FF1F1F1F" BorderBrush="#FF1F1F1F" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" PreviewKeyDown="CodeBoxKeyDown">
+
+
+        <RichTextBox x:Name="CodeBox" Margin="137,60,0,104" FontFamily="Cascadia Code" Foreground="White" BorderThickness="1,0,0,1" UndoLimit="1000" AcceptsReturn="True" AcceptsTab="True" Background="#FF1F1F1F" BorderBrush="#FF1F1F1F" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextChanged="CodeBoxTextChange" PreviewKeyDown="CodeBoxKeyDown" ScrollViewer.ScrollChanged="CodeBoxScrollChanged">
             <RichTextBox.Resources>
                 <Style TargetType="{x:Type Paragraph}">
                     <Setter Property="Margin" Value="0"/>
                 </Style>
             </RichTextBox.Resources>
         </RichTextBox>
-        <Border Margin="0,16,0,405"/>
-        <ListBox x:Name="FileExplorer" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="0,29,0,0" HorizontalAlignment="Left" Width="114" Background="#FF292929" FontFamily="Cascadia Code" BorderBrush="{x:Null}" BorderThickness="0,0,0,0" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+        <ListBox x:Name="FileExplorer" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="0,60,0,0" HorizontalAlignment="Left" Width="114" Background="#FF292929" FontFamily="Cascadia Code" BorderBrush="{x:Null}" BorderThickness="0,0,0,0" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
         <TextBox x:Name="OutputBox" Margin="114,0,332,0" TextWrapping="Wrap" BorderThickness="0,1,1,0" Background="#FF2D2D2D" FontFamily="Cascadia Code" Height="104" VerticalAlignment="Bottom" AcceptsTab="True" AcceptsReturn="True" Foreground="White" BorderBrush="#FF1B1B1B" IsReadOnly="True" FontSize="11" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
-        <Button Content="Open File" BorderThickness="1,1,1,1" Background="{x:Null}" Foreground="White" FontFamily="Cascadia Code" Click="OpenFileClick" VerticalAlignment="Top" HorizontalAlignment="Left" BorderBrush="{x:Null}" FontSize="8" Margin="0,16,0,0"/>
-        <Button Content="Save" BorderThickness="1,1,1,1" Background="{x:Null}" Foreground="White" FontFamily="Cascadia Code" VerticalAlignment="Top" HorizontalAlignment="Left" BorderBrush="{x:Null}" Margin="168,16,0,0" FontSize="8" Click="SaveClick"/>
-        <Button Content="Open Directory" BorderThickness="1,1,1,1" Background="{x:Null}" Foreground="White" FontFamily="Cascadia Code" Click="OpenDirClick" VerticalAlignment="Top" HorizontalAlignment="Left" BorderBrush="{x:Null}" Margin="51,16,0,0" FontSize="8"/>
-        <Button Content="Options" BorderThickness="1,1,1,1" Background="{x:Null}" Foreground="White" FontFamily="Cascadia Code" VerticalAlignment="Top" HorizontalAlignment="Left" BorderBrush="{x:Null}" FontSize="8" Click="OptionsClick"/>
-        <Button Content="Save as" BorderThickness="1,1,1,1" Background="{x:Null}" Foreground="White" FontFamily="Cascadia Code" VerticalAlignment="Top" HorizontalAlignment="Left" BorderBrush="{x:Null}" FontSize="8" Margin="126,16,0,0" Click="SaveAsClick"/>
-        <Button x:Name="RunBut" BorderThickness="1,1,1,1" Foreground="White" FontFamily="Cascadia Code" VerticalAlignment="Top" BorderBrush="{x:Null}" FontSize="8" Margin="0,16,6,0" Background="{x:Null}" Content="Run" Click="RunScriptClick" HorizontalAlignment="Right" Width="18"/>
-        <Button BorderThickness="1,1,1,1" Foreground="White" FontFamily="Cascadia Code" VerticalAlignment="Top" BorderBrush="{x:Null}" FontSize="8" Margin="0,16,38,0" Background="{x:Null}" Content="Stop" Click="StopScriptClick" HorizontalAlignment="Right"/>
+        <Button Content="Open File" Style="{StaticResource StandartButton}" Click="OpenFileClick" Margin="10,41,0,0" Width="72" Height="18" />
+        <Button Content="Save" Style="{StaticResource StandartButton}" Margin="200,42,0,0" Click="SaveClick" RenderTransformOrigin="1.339,0.605" Height="18" Width="38"/>
+        <Button Content="Open Directory" Style="{StaticResource StandartButton}" Click="OpenDirClick" Margin="87,41,0,0" Height="18" Width="108"/>
+        <Button Content="Options" Style="{StaticResource StandartButton}" Click="OptionsClick" Margin="10,24,0,0" Height="18" Width="58"/>
+        <Button Content="Save as" Style="{StaticResource StandartButton}" Margin="243,42,0,0" Click="SaveAsClick" Height="18" Width="56"/>
+        <Button x:Name="RunBut" Style="{StaticResource StandartButton}" Margin="0,41,10,0" Content="Run" Click="RunScriptClick" HorizontalAlignment="Right" Height="18" Width="33"/>
+        <Button x:Name="StopBut" Style="{StaticResource StandartButton}" Margin="0,42,48,0" Content="Stop" Click="StopScriptClick" HorizontalAlignment="Right" IsEnabled="False" Height="18" Width="36"/>
         <TextBox x:Name="InputBox" TextWrapping="Wrap" BorderThickness="1,1,0,0" Background="#FF2D2D2D" FontFamily="Cascadia Code" Height="104" VerticalAlignment="Bottom" AcceptsTab="True" AcceptsReturn="True" Foreground="White" BorderBrush="#FF1B1B1B" FontSize="11" HorizontalAlignment="Right" Width="332" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
-        <TextBlock x:Name="LineNumsBox" Margin="114,29,0,104" TextWrapping="Wrap" Foreground="#FF9A9A9A" FontFamily="Cascadia Code" Text="1" Background="#FF1F1F1F" HorizontalAlignment="Left" TextAlignment="Right" Width="23"/>
+        <ScrollViewer x:Name="NumsScroller" VerticalScrollBarVisibility="Hidden" Margin="114,60,0,104" HorizontalAlignment="Left" Width="24">
+            <TextBlock x:Name="LineNumsBox" TextWrapping="Wrap" Foreground="#FF9A9A9A" FontFamily="Cascadia Code" Text="1" Background="#FF1F1F1F" TextAlignment="Right" Width="23" Height="490"/>
+        </ScrollViewer>
+        <Grid x:Name="TitleBar" Margin="0,0,0,630" Background="#FF444444">
+            <Button Content="X" Margin="1057,0,0,0" Click="CloseClick">
+                <Button.Style>
+                    <Style TargetType="{x:Type Button}">
+                        <Setter Property="Background" Value="{x:Null}"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type Button}">
+                                    <Border Background="{TemplateBinding Background}">
+                                        <ContentPresenter HorizontalAlignment="Center" VerticalAlignment="Center"/>
+                                    </Border>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                        <Style.Triggers>
+                            <Trigger Property="IsMouseOver" Value="True">
+                                <Setter Property="Background" Value="DarkGoldenrod"/>
+                            </Trigger>
+                        </Style.Triggers>
+                    </Style>
+                </Button.Style>
+            </Button>
+            <Button Content="-" Margin="1020,0,37,0" Click="MinimizeClick"/>
+        </Grid>
+        <Border x:Name="ToolBar" Margin="0,23,0,593" Background="#FF545454"/>
     </Grid>
 </Window>
