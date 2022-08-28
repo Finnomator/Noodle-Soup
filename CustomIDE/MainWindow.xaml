@@ -5,9 +5,9 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:CustomIDE"
         mc:Ignorable="d"
-        Title="MainWindow" Height="450" Width="800" Background="Black">
+        Title="MainWindow" Height="450" Width="800" Background="Black" Closed="WindowCloses">
     <Grid Background="#FF101010">
-        <RichTextBox x:Name="CodeBox" Margin="114,29,0,104" FontFamily="Cascadia Code" Foreground="White" BorderThickness="1,0,0,1" UndoLimit="1000" AcceptsReturn="True" AcceptsTab="True" Background="#FF1F1F1F" BorderBrush="#FF1F1F1F" PreviewKeyDown="KeyDown">
+        <RichTextBox x:Name="CodeBox" Margin="137,29,0,104" FontFamily="Cascadia Code" Foreground="White" BorderThickness="1,0,0,1" UndoLimit="1000" AcceptsReturn="True" AcceptsTab="True" Background="#FF1F1F1F" BorderBrush="#FF1F1F1F" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" PreviewKeyDown="CodeBoxKeyDown">
             <RichTextBox.Resources>
                 <Style TargetType="{x:Type Paragraph}">
                     <Setter Property="Margin" Value="0"/>
@@ -15,11 +15,16 @@
             </RichTextBox.Resources>
         </RichTextBox>
         <Border Margin="0,16,0,405"/>
-        <ListBox x:Name="FileExplorer" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="0,29,0,0" HorizontalAlignment="Left" Width="114" Background="#FF292929" FontFamily="Cascadia Code" BorderBrush="{x:Null}" BorderThickness="0,0,0,0"/>
-        <TextBox x:Name="Terminal" Margin="114,0,0,0" TextWrapping="Wrap" Text="C:\Users&gt; " BorderThickness="0,1,0,0" Background="#FF2D2D2D" FontFamily="Cascadia Code" Height="104" VerticalAlignment="Bottom" AcceptsTab="True" AcceptsReturn="True" Foreground="White" BorderBrush="#FF2D2D2D"/>
+        <ListBox x:Name="FileExplorer" d:ItemsSource="{d:SampleData ItemCount=5}" Margin="0,29,0,0" HorizontalAlignment="Left" Width="114" Background="#FF292929" FontFamily="Cascadia Code" BorderBrush="{x:Null}" BorderThickness="0,0,0,0" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto"/>
+        <TextBox x:Name="OutputBox" Margin="114,0,332,0" TextWrapping="Wrap" BorderThickness="0,1,1,0" Background="#FF2D2D2D" FontFamily="Cascadia Code" Height="104" VerticalAlignment="Bottom" AcceptsTab="True" AcceptsReturn="True" Foreground="White" BorderBrush="#FF1B1B1B" IsReadOnly="True" FontSize="11" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto"/>
         <Button Content="Open File" BorderThickness="1,1,1,1" Background="{x:Null}" Foreground="White" FontFamily="Cascadia Code" Click="OpenFileClick" VerticalAlignment="Top" HorizontalAlignment="Left" BorderBrush="{x:Null}" FontSize="8" Margin="0,16,0,0"/>
-        <Button Content="Save" BorderThickness="1,1,1,1" Background="{x:Null}" Foreground="White" FontFamily="Cascadia Code" VerticalAlignment="Top" HorizontalAlignment="Left" BorderBrush="{x:Null}" Margin="51,16,0,0" FontSize="8" Click="SaveClick"/>
-        <Button Content="Open Directory" BorderThickness="1,1,1,1" Background="{x:Null}" Foreground="White" FontFamily="Cascadia Code" Click="OpenDirClick" VerticalAlignment="Top" HorizontalAlignment="Left" BorderBrush="{x:Null}" Margin="79,16,0,0" FontSize="8"/>
-        <Button Content="Options" BorderThickness="1,1,1,1" Background="{x:Null}" Foreground="White" FontFamily="Cascadia Code" VerticalAlignment="Top" HorizontalAlignment="Left" BorderBrush="{x:Null}" FontSize="8"/>
+        <Button Content="Save" BorderThickness="1,1,1,1" Background="{x:Null}" Foreground="White" FontFamily="Cascadia Code" VerticalAlignment="Top" HorizontalAlignment="Left" BorderBrush="{x:Null}" Margin="168,16,0,0" FontSize="8" Click="SaveClick"/>
+        <Button Content="Open Directory" BorderThickness="1,1,1,1" Background="{x:Null}" Foreground="White" FontFamily="Cascadia Code" Click="OpenDirClick" VerticalAlignment="Top" HorizontalAlignment="Left" BorderBrush="{x:Null}" Margin="51,16,0,0" FontSize="8"/>
+        <Button Content="Options" BorderThickness="1,1,1,1" Background="{x:Null}" Foreground="White" FontFamily="Cascadia Code" VerticalAlignment="Top" HorizontalAlignment="Left" BorderBrush="{x:Null}" FontSize="8" Click="OptionsClick"/>
+        <Button Content="Save as" BorderThickness="1,1,1,1" Background="{x:Null}" Foreground="White" FontFamily="Cascadia Code" VerticalAlignment="Top" HorizontalAlignment="Left" BorderBrush="{x:Null}" FontSize="8" Margin="126,16,0,0" Click="SaveAsClick"/>
+        <Button x:Name="RunBut" BorderThickness="1,1,1,1" Foreground="White" FontFamily="Cascadia Code" VerticalAlignment="Top" BorderBrush="{x:Null}" FontSize="8" Margin="0,16,6,0" Background="{x:Null}" Content="Run" Click="RunScriptClick" HorizontalAlignment="Right" Width="18"/>
+        <Button BorderThickness="1,1,1,1" Foreground="White" FontFamily="Cascadia Code" VerticalAlignment="Top" BorderBrush="{x:Null}" FontSize="8" Margin="0,16,38,0" Background="{x:Null}" Content="Stop" Click="StopScriptClick" HorizontalAlignment="Right"/>
+        <TextBox x:Name="InputBox" TextWrapping="Wrap" BorderThickness="1,1,0,0" Background="#FF2D2D2D" FontFamily="Cascadia Code" Height="104" VerticalAlignment="Bottom" AcceptsTab="True" AcceptsReturn="True" Foreground="White" BorderBrush="#FF1B1B1B" FontSize="11" HorizontalAlignment="Right" Width="332" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto"/>
+        <TextBlock x:Name="LineNumsBox" Margin="114,29,0,104" TextWrapping="Wrap" Foreground="#FF9A9A9A" FontFamily="Cascadia Code" Text="1" Background="#FF1F1F1F" HorizontalAlignment="Left" TextAlignment="Right" Width="23"/>
     </Grid>
 </Window>

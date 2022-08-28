@@ -1,98 +1,161 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
 using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
 using Microsoft.Win32;
 using System.IO;
 using System.Diagnostics;
-using System.Threading;
+using Newtonsoft.Json;
+using System.Windows.Input;
+using System.Linq;
 
 namespace CustomIDE {
+
     public partial class MainWindow : Window {
 
-        BrushConverter bc;
-        string typing_word = "";
-        bool last_was_colored = false;
-        Dictionary<string, string> colors;
-        Key[] word_end_chars = { Key.OemPeriod, Key.OemOpenBrackets, Key.OemCloseBrackets, Key.OemComma, Key.OemQuotes, Key.OemSemicolon, Key.Space, Key.Return };
+        string current_file_path;
+        Process CodeRunner;
+        Options options;
+
         public MainWindow() {
             InitializeComponent();
-            bc = new BrushConverter();
-            colors = new Colors().colors;
-        }
+            current_file_path = "Temp.py";
+            options = new Options();
 
-        void AppendText(RichTextBox box, string text, string color) {
-            TextRange tr = new TextRange(box.Document.ContentEnd, box.Document.ContentEnd);
-            tr.Text = text;
-            tr.ApplyPropertyValue(TextElement.ForegroundProperty, bc.ConvertFromString(color));
+            options.UpdateSettings("Python", options.CheckPythonInstallation());
+            options.UpdateSettings("Ampy", options.CeckAmpyInstallation());
+
+            SetCodeBoxText(File.ReadAllText(current_file_path));        
         }
 
         private void OpenFileClick(object sender, RoutedEventArgs e) {
-            OpenFileDialog openFileDialog = new OpenFileDialog();
-            TextRange tr = new TextRange(CodeBox.Document.ContentStart, CodeBox.Document.ContentEnd);
-            if ((bool)!openFileDialog.ShowDialog())
+            if (SelectFile() == null)
                 return;
 
-            tr.Text = File.ReadAllText(openFileDialog.FileName);
+            SetCodeBoxText(File.ReadAllText(current_file_path));
+        }
+
+        private string SelectFile() {
+            OpenFileDialog openFileDialog = new OpenFileDialog();
+            if ((bool) !openFileDialog.ShowDialog())
+                return null;
+            current_file_path = openFileDialog.FileName;
+            return current_file_path;
         }
 
         private void OpenDirClick(object sender, RoutedEventArgs e) {
 
         }
 
+        private void SaveFile() {
+            File.WriteAllText(current_file_path, GetCodeBoxText());
+        }
+
         private void SaveClick(object sender, RoutedEventArgs e) {
-
+            SaveFile();
         }
 
-        void ColorWord() {
-            if (typing_word == "")
+        private string GetCodeBoxText() {
+            return new TextRange(CodeBox.Document.ContentStart, CodeBox.Document.ContentEnd).Text;
+        }
+
+        private void SetCodeBoxText(string text) {
+            new TextRange(CodeBox.Document.ContentStart, CodeBox.Document.ContentEnd).Text = text;
+        }
+
+        private void SaveAsClick(object sender, RoutedEventArgs e) {
+            SaveFileDialog saveFileDialog = new SaveFileDialog();
+            if (saveFileDialog.ShowDialog() != true)
                 return;
-            object color = bc.ConvertFromString(colors[colors.ContainsKey(typing_word) ? typing_word : "default"]);
-            TextRange tr = new TextRange(CodeBox.CaretPosition.GetPositionAtOffset(-typing_word.Length), CodeBox.CaretPosition);
-            tr.ApplyPropertyValue(TextElement.ForegroundProperty, color);
+
+            current_file_path = saveFileDialog.FileName;
+            File.WriteAllText(current_file_path, GetCodeBoxText());
         }
 
-        TextRange FindWordFromPos(TextPointer pos) {
-            TextRange tr;
-            
-            tr = new TextRange(CodeBox.CaretPosition.GetPositionAtOffset(-1), pos);
-            Debug.WriteLine(tr.Text);
-            return tr;
+        private void RunTerminalCommand(string fileName, string args) {
+            OutputBox.Text = "Running " + fileName + " " + args + " ...\n[Output]\n\n";
+
+            CodeRunner = new Process();
+            CodeRunner.StartInfo.RedirectStandardError = true;
+            CodeRunner.StartInfo.RedirectStandardOutput = true;
+            CodeRunner.StartInfo.UseShellExecute = false;
+            CodeRunner.StartInfo.CreateNoWindow = true;
+            CodeRunner.StartInfo.FileName = fileName;
+            CodeRunner.StartInfo.Arguments = args;
+
+            CodeRunner.OutputDataReceived += new DataReceivedEventHandler((s, e) => {
+                Dispatcher.Invoke(() => {
+                    if (e.Data == null)
+                        OutputBox.Text += "\n\n[Done]";
+                    else
+                        OutputBox.Text += e.Data.ToString();
+                });
+            });
+            CodeRunner.ErrorDataReceived += new DataReceivedEventHandler((s, e) => {
+                Dispatcher.Invoke(() => {
+                    if (e.Data != null)
+                        OutputBox.Text += e.Data.ToString();
+                });
+            });
+
+            CodeRunner.Start();
+            CodeRunner.BeginOutputReadLine();
+            CodeRunner.BeginErrorReadLine();
         }
 
-        private void KeyDown(object sender, KeyEventArgs e) {
-            if (word_end_chars.Contains(e.Key)) {
-                typing_word = "";
-            } else if (e.Key == Key.Back) {
-                if (typing_word != "")
-                    typing_word = typing_word.Remove(typing_word.Length - 1);
-                else {
-                    TextRange tr = FindWordFromPos(CodeBox.CaretPosition);
-                    typing_word = tr.Text;
-                }
-            } else if (e.Key.ToString().Length != 1) {
+        private void StopTerminalCommand() {
+            CodeRunner.Kill();
+        }
+
+        private void RunScriptClick(object sender, RoutedEventArgs e) {
+            SaveFile();
+            options.CheckCOMPort();
+            if (options.settings["COM"] == "None") {
+                MessageBox.Show("Select a COM Port first", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
-            } else {
-                string letter = e.Key.ToString();
+            } else if (options.settings["Python"] == "Not Installed") {
+                MessageBox.Show("Install Python first", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            } else if (options.settings["Ampy"] == "Not Installed") {
+                MessageBox.Show("Install adafruit-ampy first", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            RunTerminalCommand("ampy", "--port " + options.settings["COM"] + " run " + current_file_path);
+        }
 
-                if (!(Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift))) {
-                    letter = letter.ToLower();
-                }
-                typing_word += letter;
+        private void StopScriptClick(object sender, RoutedEventArgs e) {
+            StopTerminalCommand();
+        }
+
+        private void OptionsClick(object sender, RoutedEventArgs e) {
+            options = new Options();
+            options.Show();
+        }
+
+        private void WindowCloses(object sender, EventArgs e) {
+            SaveFile();
+            options.Close();
+            Application.Current.Shutdown();
+        }
+
+        private void CodeBoxKeyDown(object sender, System.Windows.Input.KeyEventArgs e) {
+           if (e.Key == Key.Return) {
+                int lines = GetCodeBoxText().Split('\n').Length;
+                if (lines == 1)
+                    lines = 2;
+
+                LineNumsBox.Text = "1\n";
+                for(int i = 2; i <= lines; i++)
+                    LineNumsBox.Text += i + "\n";
             }
 
-            Debug.WriteLine("\"" + typing_word + "\"");
-            ColorWord();
+            if (e.Key == Key.Back) {
+                int lines = GetCodeBoxText().Split('\n').Length - 2;
+
+                LineNumsBox.Text = "1\n";
+                for (int i = 2; i <= lines; i++)
+                    LineNumsBox.Text += i + "\n";
+            }
         }
     }
 }
