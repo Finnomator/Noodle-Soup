@@ -1,4 +1,5 @@
 ﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -10,13 +11,11 @@ namespace CustomIDE {
     public partial class Options : Window {
         public Dictionary<string, string> settings;
         string[] ports;
+        readonly string settingsPath = Path.GetFullPath("settings.json");
         public Options() {
             InitializeComponent();
-
             settings = LoadSettings();
-
             ComPortBox.SelectedItem = CheckCOMPort();
-
             AmpyStatus.Content = "Adafruit Ampy: " + settings["Ampy"];
             PythonStatus.Content = "Python: " + settings["Python"];
             InstallAmpyBut.IsEnabled = settings["Ampy"] == "Not Installed";
@@ -24,12 +23,12 @@ namespace CustomIDE {
         }
 
         public Dictionary<string, string> LoadSettings() {
-            return JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText("settings.json"));
+            return JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(settingsPath));
         }
 
         public void UpdateSettings(string option, string value) {
             settings[option] = value;
-            File.WriteAllText("settings.json", JsonConvert.SerializeObject(settings));
+            File.WriteAllText(settingsPath, JsonConvert.SerializeObject(settings));
         }
 
         private void ApplyClick(object sender, RoutedEventArgs e) {

@@ -9,6 +9,8 @@ using Newtonsoft.Json;
 using System.Windows.Input;
 using System.Linq;
 using System.Windows.Controls;
+using System.Windows.Media;
+
 
 namespace CustomIDE {
 
@@ -17,24 +19,73 @@ namespace CustomIDE {
         string current_file_path;
         Process CodeRunner;
         Options options;
-        int lines_count = 1;
+        bool runningCommand = false;
+        readonly ProcessStartInfo startInfo;
 
         public MainWindow() {
             InitializeComponent();
-            current_file_path = "Temp.py";
             options = new Options();
+
+            startInfo = new ProcessStartInfo {
+                RedirectStandardError = true,
+                RedirectStandardOutput = true,
+                UseShellExecute = false,
+                CreateNoWindow = true,
+                RedirectStandardInput = true
+            };
 
             options.UpdateSettings("Python", options.CheckPythonInstallation());
             options.UpdateSettings("Ampy", options.CeckAmpyInstallation());
 
-            SetCodeBoxText(File.ReadAllText(current_file_path));
+            current_file_path = Path.GetFullPath(options.settings["Last File Path"]);
+
+
+            FileExplorer.OpenDir(Directory.GetParent(current_file_path).FullName);
+
+            TabControler.OnUserChangesSelection += TabControlUserChange;
+            FileExplorer.OnUserChangesSelection += FileSelectionChange;
+
+            OpenFile(current_file_path);
+        }
+
+        private void TabControlUserChange(object sender, EventArgs e) {
+            TabItem tabItem = (TabItem)sender;
+            if (SaveFile())
+                OpenFile(tabItem.Path);
+        }
+
+        private void FileSelectionChange(object sender, EventArgs e) {
+            FileButton fileButton = (FileButton)sender;
+            if (SaveFile())
+                OpenFile(fileButton.FilePath);
+        }
+
+        private void OpenFile(string path) {
+            if (path == null)
+                return;
+
+            current_file_path = path;
+
+            Debug.WriteLine(current_file_path);
+
+            try {
+                Coder.SetText(File.ReadAllText(current_file_path));
+            } catch (Exception ex) {
+                MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+
+            TabControler.Select(current_file_path);
+            FileExplorer.Select(current_file_path);
         }
 
         private void OpenFileClick(object sender, RoutedEventArgs e) {
             if (SelectFile() == null)
                 return;
 
-            SetCodeBoxText(File.ReadAllText(current_file_path));
+            OpenFile(current_file_path);
+
+            FileExplorer.OpenDir(Directory.GetParent(current_file_path).FullName);
         }
 
         private string SelectFile() {
@@ -46,24 +97,22 @@ namespace CustomIDE {
         }
 
         private void OpenDirClick(object sender, RoutedEventArgs e) {
-
         }
 
-        private void SaveFile() {
-            File.WriteAllText(current_file_path, GetCodeBoxText());
+        private bool SaveFile() {
+            try {
+                File.WriteAllText(current_file_path, Coder.GetText());
+            } catch (Exception ex) {
+                MessageBoxResult boxResult = MessageBox.Show(ex.Message + "\nContinue without saving?", "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+                return boxResult == MessageBoxResult.Yes;
+            }
+            return true;
         }
 
         private void SaveClick(object sender, RoutedEventArgs e) {
             SaveFile();
         }
 
-        private string GetCodeBoxText() {
-            return new TextRange(CodeBox.Document.ContentStart, CodeBox.Document.ContentEnd).Text;
-        }
-
-        private void SetCodeBoxText(string text) {
-            new TextRange(CodeBox.Document.ContentStart, CodeBox.Document.ContentEnd).Text = text;
-        }
 
         private void SaveAsClick(object sender, RoutedEventArgs e) {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
@@ -71,37 +120,47 @@ namespace CustomIDE {
                 return;
 
             current_file_path = saveFileDialog.FileName;
-            File.WriteAllText(current_file_path, GetCodeBoxText());
+            SaveFile();
         }
 
         private void RunTerminalCommand(string fileName, string args) {
-            OutputBox.Text = "Running " + fileName + " " + args + " ...\n[Output]\n\n";
+            OutputBox.Text += "Running \"" + fileName + (args == "" ? "" : " " + args) + "\" ...\n";
+            StopBut.IsEnabled = true;
+            runningCommand = true;
 
-            CodeRunner = new Process();
-            CodeRunner.StartInfo.RedirectStandardError = true;
-            CodeRunner.StartInfo.RedirectStandardOutput = true;
-            CodeRunner.StartInfo.UseShellExecute = false;
-            CodeRunner.StartInfo.CreateNoWindow = true;
+            CodeRunner = new Process {
+                StartInfo = startInfo
+            };
+
             CodeRunner.StartInfo.FileName = fileName;
             CodeRunner.StartInfo.Arguments = args;
 
             CodeRunner.OutputDataReceived += new DataReceivedEventHandler((s, e) => {
                 Dispatcher.Invoke(() => {
                     if (e.Data == null) {
+                        runningCommand = false;
                         StopBut.IsEnabled = false;
-                        OutputBox.Text += "\n\n[Done]";
-                    } else
-                        OutputBox.Text += e.Data.ToString();
+                        OutputBox.Text += "[Done]\n";
+                    } else {
+                        OutputBox.Text += "[OUT] " + e.Data + "\n";
+                    }
                 });
             });
             CodeRunner.ErrorDataReceived += new DataReceivedEventHandler((s, e) => {
                 Dispatcher.Invoke(() => {
                     if (e.Data != null)
-                        OutputBox.Text += e.Data.ToString();
+                        OutputBox.Text += e.Data + "\n";
                 });
             });
 
-            CodeRunner.Start();
+            try {
+                CodeRunner.Start();
+            } catch {
+                OutputBox.Text += "Command \"" + fileName + "\" not found.\n[Done]\n";
+                runningCommand = false;
+                StopBut.IsEnabled = false;
+                return;
+            }
             CodeRunner.BeginOutputReadLine();
             CodeRunner.BeginErrorReadLine();
         }
@@ -123,7 +182,6 @@ namespace CustomIDE {
                 MessageBox.Show("Install adafruit-ampy first", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            StopBut.IsEnabled = true;
             RunTerminalCommand("ampy", "--port " + options.settings["COM"] + " run " + current_file_path);
         }
 
@@ -137,39 +195,9 @@ namespace CustomIDE {
         }
 
         private void WindowCloses(object sender, EventArgs e) {
-            SaveFile();
+            options.UpdateSettings("Last File Path", current_file_path);
             options.Close();
             Application.Current.Shutdown();
-        }
-
-        private void CodeBoxTextChange(object sender, System.Windows.Controls.TextChangedEventArgs e) {
-            int line_breaks = GetCodeBoxText().Split('\n').Length - 1;
-
-            if (lines_count == line_breaks)
-                return;
-
-            lines_count = line_breaks;
-
-            LineNumsBox.Text = "1\n";
-            for (int i = 2; i <= lines_count; i++) {
-                LineNumsBox.Text += i + "\n";
-            }
-        }
-
-        private void CodeBoxKeyDown(object sender, KeyEventArgs e) {
-
-        }
-
-        private void CodeBoxScrollChanged(object sender, ScrollChangedEventArgs e) {
-            NumsScroller.ScrollToVerticalOffset(e.VerticalOffset);
-        }
-
-        private void Window_MouseDown(object sender, MouseButtonEventArgs e) {
-            if (e.ChangedButton != MouseButton.Left)
-                return;
-            Point mouse_pos = Mouse.GetPosition(TitleBar);
-            if (mouse_pos.Y < TitleBar.ActualHeight && mouse_pos.X < TitleBar.ActualWidth)
-                DragMove();
         }
 
         private void MinimizeClick(object sender, RoutedEventArgs e) {
@@ -177,7 +205,65 @@ namespace CustomIDE {
         }
 
         private void CloseClick(object sender, RoutedEventArgs e) {
+            if (!SaveFile())
+                return;
             Close();
+        }
+
+        private void RunPythonScriptClick(object sender, RoutedEventArgs e) {
+            SaveFile();
+            if (options.settings["Python"] == "Not Installed") {
+                MessageBox.Show("Install Python first", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+                return;
+            }
+            RunTerminalCommand("python", current_file_path);
+        }
+
+        private void MaximiseClick(object sender, RoutedEventArgs e) {
+            if (WindowState == WindowState.Normal)
+                WindowState = WindowState.Maximized;
+            else
+                WindowState = WindowState.Normal;
+        }
+
+        private void Window_LeftMouseDowm(object sender, MouseButtonEventArgs e) {
+            Point mouse_pos = Mouse.GetPosition(TitleBar);
+            if (mouse_pos.Y < TitleBar.ActualHeight && mouse_pos.X < TitleBar.ActualWidth) {
+                if (WindowState != WindowState.Normal)
+                    WindowState = WindowState.Normal;
+                DragMove();
+            }
+        }
+
+        private void InputKeyDown(object sender, KeyEventArgs e) {
+            if (e.Key != Key.Return)
+                return;
+
+            string input = InputBox.Text;
+
+            InputBox.Text = "";
+
+            OutputBox.Text += "[IN]  " + input + "\n";
+
+            if (!runningCommand) {
+                input = input.Trim();
+                string fileName = input.Split(' ')[0];
+                string args = "";
+                if (fileName.Length < input.Length)
+                    args = input.Substring(fileName.Length);
+
+                RunTerminalCommand(fileName, args);
+            } else {
+                CodeRunner.StandardInput.WriteLine(input);
+            }
+        }
+
+        private void CodeBoxTextChange(object sender, TextChangedEventArgs e) {
+
+        }
+
+        private void OutputTextChange(object sender, TextChangedEventArgs e) {
+            OutputBox.ScrollToEnd();
         }
     }
 }
