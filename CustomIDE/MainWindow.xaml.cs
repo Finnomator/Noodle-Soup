@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Documents;
-using Microsoft.Win32;
 using System.IO;
 using System.Diagnostics;
 using Newtonsoft.Json;
@@ -10,7 +9,7 @@ using System.Windows.Input;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Media;
-
+using Microsoft.Win32;
 
 namespace CustomIDE {
 
@@ -20,20 +19,17 @@ namespace CustomIDE {
         Process CodeRunner;
         Options options;
         bool runningCommand = false;
-        readonly ProcessStartInfo startInfo;
+        readonly ProcessStartInfo startInfo = new ProcessStartInfo {
+            RedirectStandardError = true,
+            RedirectStandardOutput = true,
+            UseShellExecute = false,
+            CreateNoWindow = true,
+            RedirectStandardInput = true
+        };
 
         public MainWindow() {
             InitializeComponent();
             options = new Options();
-
-            startInfo = new ProcessStartInfo {
-                RedirectStandardError = true,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                CreateNoWindow = true,
-                RedirectStandardInput = true
-            };
-
             options.UpdateSettings("Python", options.CheckPythonInstallation());
             options.UpdateSettings("Ampy", options.CeckAmpyInstallation());
 
@@ -49,13 +45,13 @@ namespace CustomIDE {
         }
 
         private void TabControlUserChange(object sender, EventArgs e) {
-            TabItem tabItem = (TabItem)sender;
+            TabItem tabItem = (TabItem) sender;
             if (SaveFile())
                 OpenFile(tabItem.Path);
         }
 
         private void FileSelectionChange(object sender, EventArgs e) {
-            FileButton fileButton = (FileButton)sender;
+            FileButton fileButton = (FileButton) sender;
             if (SaveFile())
                 OpenFile(fileButton.FilePath);
         }
@@ -90,13 +86,10 @@ namespace CustomIDE {
 
         private string SelectFile() {
             OpenFileDialog openFileDialog = new OpenFileDialog();
-            if ((bool)!openFileDialog.ShowDialog())
+            if ((bool) !openFileDialog.ShowDialog())
                 return null;
             current_file_path = openFileDialog.FileName;
             return current_file_path;
-        }
-
-        private void OpenDirClick(object sender, RoutedEventArgs e) {
         }
 
         private bool SaveFile() {
@@ -116,7 +109,7 @@ namespace CustomIDE {
 
         private void SaveAsClick(object sender, RoutedEventArgs e) {
             SaveFileDialog saveFileDialog = new SaveFileDialog();
-            if (saveFileDialog.ShowDialog() != true)
+            if ((bool) !saveFileDialog.ShowDialog())
                 return;
 
             current_file_path = saveFileDialog.FileName;
