@@ -1,13 +1,8 @@
-﻿using Microsoft.Scripting.Utils;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
-using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Media;
 
 namespace CustomIDE {
 
@@ -23,24 +18,20 @@ namespace CustomIDE {
         }
 
         public void OpenDir(string dirPath) {
-            if (DisplayedDir == dirPath) {
+            if (DisplayedDir == dirPath)
                 return;
-            }
+            
             DisplayedDir = dirPath;
             FileExplorer.Items.Clear();
-            new DirectoryButton(dirPath, FileExplorer);
+
+            Action<object, EventArgs> clickPointer = FileButtonClick;
+
+            new DirectoryButton(dirPath, FileExplorer, clickPointer);
+
             PathBox.Text = dirPath;
-
-            foreach (object item in FileExplorer.Items) {
-                if (item.GetType() == typeof(DirectoryButton))
-                    continue;
-                FileButton fileButton = (FileButton)item;
-
-                fileButton.Click += FileButtonClick;
-            }
         }
 
-        private void FileButtonClick(object sender, RoutedEventArgs e) {
+        private void FileButtonClick(object sender, EventArgs e) {
 
             if (((FileButton)sender).isSelected)
                 return;
@@ -70,6 +61,7 @@ namespace CustomIDE {
         public string DirName;
         public string DirPath;
         public ListBox Box;
+        public Action<object, EventArgs> ClickPointer;
 
         public DirectoryButton(string dirName, DirectoryButton parent) : base() {
             DirName = dirName;
@@ -78,12 +70,14 @@ namespace CustomIDE {
             Content = "> " + DirName;
             IsExpanded = false;
             Box = parent.Box;
+            ClickPointer = parent.ClickPointer;
             Indent(Depth * 10);
         }
 
-        public DirectoryButton(string path, ListBox box) : base() {
+        public DirectoryButton(string path, ListBox box, Action<object, EventArgs> clickPointer) : base() {
             DirPath = path;
             Box = box;
+            ClickPointer = clickPointer;
             DirName = Path.GetFileName(DirPath);
             Depth = -1;
             Content = "V " + DirName;
@@ -143,8 +137,10 @@ namespace CustomIDE {
             FilePath = Path.Combine(parent.DirPath, FileName);
             Depth = parent.Depth + 1;
             Content = fileName;
+            Click += parent.ClickPointer.Invoke;
             Indent(Depth * 10);
         }
+
 
         public void Select() {
             isSelected = true;

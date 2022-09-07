@@ -167,6 +167,10 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
+    <Resource Include="Close2.png" />
+    <Resource Include="Close.png" />
+    <Resource Include="Maximize.png" />
+    <Resource Include="Minimize.png" />
     <Content Include="Temp.py">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

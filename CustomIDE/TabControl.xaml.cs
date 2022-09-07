@@ -13,6 +13,9 @@ namespace CustomIDE {
         public delegate void UserChangesSelectionHandler(object sender, EventArgs e);
         public event UserChangesSelectionHandler OnUserChangesSelection;
 
+        public delegate void UserRemoveTabHandler(object sender, EventArgs e);
+        public event UserRemoveTabHandler OnUserRemovedTab;
+
         public TabControl() {
             InitializeComponent();
         }
@@ -22,8 +25,8 @@ namespace CustomIDE {
             TabItem tabItem = new TabItem(path) {
                 Margin = new Thickness(TotalWidth, 0, 0, 0)
             };
-            ((TabItemContent)tabItem.Content).closeButton.Click += CloseFileClick;
-            tabItem.Click += TabItemClick;
+            tabItem.closeButton.Click += CloseFileClick;
+            tabItem.selectButton.Click += TabItemClick;
 
             MainGrid.Children.Add(tabItem);
 
@@ -46,12 +49,11 @@ namespace CustomIDE {
                 width += (int)tabItem.ActualWidth;
             }
 
-            if (MainGrid.Children.Count > 0) {
+            if (tab.isSelected && MainGrid.Children.Count > 0) {
                 TabItem tabItem = (TabItem)MainGrid.Children[0];
                 OnUserChangesSelection(tabItem, new EventArgs());
                 Select(tabItem);
             }
-
         }
 
         public void Select(TabItem one) {
@@ -75,7 +77,9 @@ namespace CustomIDE {
         }
 
         private void TabItemClick(object sender, RoutedEventArgs e) {
-            TabItem clickedItem = (TabItem)sender;
+
+            Button selectButton = (Button)sender;
+            TabItem clickedItem = (TabItem)selectButton.Tag;
 
             if (clickedItem.isSelected)
                 return;
@@ -87,13 +91,13 @@ namespace CustomIDE {
                     tabItem.Deselect();
                 }
             }
-            OnUserChangesSelection((TabItem)sender, new EventArgs());
+            OnUserChangesSelection(clickedItem, new EventArgs());
         }
 
         private void CloseFileClick(object sender, RoutedEventArgs e) {
-            TabItemContent tabItemContent = (TabItemContent)((Button)sender).Parent;
-            TabItem tab = (TabItem)tabItemContent.Parent;
+            TabItem tab = ((TabItem)((Button)sender).Tag);
             RemoveTab(tab);
+            OnUserRemovedTab(sender, new EventArgs());
         }
 
         public bool Contains(string path) {
@@ -105,69 +109,23 @@ namespace CustomIDE {
         }
     }
 
-    public class TabItem : Button {
+    public class TabItem : Styles.TabItemButton {
         public string title;
         public string Path;
         public bool isSelected;
 
-        public TabItem(string path) : base() {
+        public TabItem(string path) : base(System.IO.Path.GetFileName(path)) {
             Path = path;
-            title = System.IO.Path.GetFileName(Path);
-
-            Content = new TabItemContent(title);
-
-            Padding = new Thickness(1, 0, 1, 0);
-            HorizontalAlignment = HorizontalAlignment.Left;
         }
 
         public void Select() {
-            BorderThickness = new Thickness(1, 1, 1, 0);
             Background = Styles.DirectoryButton.SelectedColor;
             isSelected = true;
         }
 
         public void Deselect() {
-            BorderThickness = new Thickness(1, 1, 1, 1);
             Background = Styles.DirectoryButton.BackgroundColor;
             isSelected = false;
-        }
-    }
-
-    public class TabItemContent : Grid {
-
-        public Button closeButton = new Button();
-
-        public TabItemContent(string content) : base() {
-
-            ColumnDefinition col1 = new ColumnDefinition();
-            ColumnDefinition col2 = new ColumnDefinition();
-
-            col1.Width = GridLength.Auto;
-            col2.Width = GridLength.Auto;
-
-            ColumnDefinitions.Add(col1);
-            ColumnDefinitions.Add(col2);
-
-            Label l = new Label {
-                Padding = new Thickness(0, 0, 1, 0),
-                FontSize = 10,
-                FontFamily = new FontFamily("Cascadia Mono"),
-                Content = content,
-                Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255)),
-            };
-
-            closeButton.Content = "[X]";
-            closeButton.Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-            closeButton.Padding = new Thickness(1, 0, 0, 0);
-            closeButton.BorderThickness = new Thickness(0, 0, 0, 0);
-            closeButton.FontSize = 10;
-            closeButton.Background = new SolidColorBrush(Color.FromArgb(50, 255, 255, 255));
-
-            SetColumn(l, 0);
-            SetColumn(closeButton, 1);
-
-            Children.Add(l);
-            Children.Add(closeButton);
         }
     }
 

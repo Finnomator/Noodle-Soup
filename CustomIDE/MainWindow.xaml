@@ -44,7 +44,7 @@
 
             <Label x:Name="ButtonLabel" Content="{TemplateBinding Content}" HorizontalAlignment="Right" Width="37" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0,0,0,0">
                 <Label.Foreground>
-                    <ImageBrush ImageSource="C:\Users\finnd\Pictures\Saved Pictures\Maximise.png" Stretch="Fill"/>
+                    <SolidColorBrush Color="White"/>
                 </Label.Foreground>
             </Label>
             <ControlTemplate.Triggers>
@@ -91,7 +91,7 @@
             <Grid Grid.Row="1" Grid.Column="2">
 
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="16"/>
+                    <RowDefinition Height="17"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
@@ -99,9 +99,15 @@
                 <local:CoderBox x:Name="Coder" Grid.Row="1"/>
             </Grid>
             <Grid x:Name="TitleBar" Grid.ColumnSpan="3" Background="#FF444444" Height="23" VerticalAlignment="Top">
-                <Button Template="{StaticResource WindowControlTemplate}" Click="CloseClick" HorizontalAlignment="Right"/>
-                <Button Template="{StaticResource WindowControlTemplate}" Margin="0,0,74,0" Click="MinimizeClick" HorizontalAlignment="Right"/>
-                <Button Template="{StaticResource WindowControlTemplate}" Margin="0,0,37,0" Click="MaximiseClick" HorizontalAlignment="Right"/>
+                <Button Template="{StaticResource WindowControlTemplate}" Click="CloseClick" HorizontalAlignment="Right" Panel.ZIndex="1">
+                    <Image Source="/Close2.png" Width="10"/>
+                </Button>
+                <Button Template="{StaticResource WindowControlTemplate}" Margin="0,0,74,0" Click="MinimizeClick" HorizontalAlignment="Right">
+                    <Image Source="/Minimize.png" Width="10"/>
+                </Button>
+                <Button Template="{StaticResource WindowControlTemplate}" Margin="0,0,37,0" Click="MaximiseClick" HorizontalAlignment="Right">
+                    <Image Source="/Maximize.png" Width="10"/>
+                </Button>
                 <Label Content="Custom IDE" HorizontalAlignment="Left" VerticalAlignment="Center" Height="23" Foreground="White" VerticalContentAlignment="Center" Padding="5,3,5,5"/>
             </Grid>
             <Grid x:Name="ToolBar" Grid.ColumnSpan="3" Margin="0,23,0,0" Background="#FF545454">

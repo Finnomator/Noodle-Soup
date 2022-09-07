@@ -26,6 +26,7 @@ namespace CustomIDE {
             CreateNoWindow = true,
             RedirectStandardInput = true
         };
+        string tempFilePath = Path.GetFullPath("Temp.py");
 
         public MainWindow() {
             InitializeComponent();
@@ -39,9 +40,17 @@ namespace CustomIDE {
             FileExplorer.OpenDir(Directory.GetParent(current_file_path).FullName);
 
             TabControler.OnUserChangesSelection += TabControlUserChange;
+            TabControler.OnUserRemovedTab += TabControlRmTab;
             FileExplorer.OnUserChangesSelection += FileSelectionChange;
+            
 
             OpenFile(current_file_path);
+        }
+
+        private void TabControlRmTab(object sender, EventArgs e) {
+            if (TabControler.MainGrid.Children.Count == 0) {
+                OpenFile(tempFilePath);
+            }
         }
 
         private void TabControlUserChange(object sender, EventArgs e) {
