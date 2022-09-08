@@ -96,4 +96,12 @@ namespace Styles {
         private void SelectButton_MouseEnter(object sender, MouseEventArgs e) {
         }
     }
+
+    public class TextSuggestionButton : Button {
+        public TextSuggestionButton(string content) : base() {
+            Content = content;
+            Foreground = Brushes.White;
+            Background = null;
+        }
+    }
 }

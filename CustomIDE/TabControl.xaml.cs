@@ -14,7 +14,7 @@ namespace CustomIDE {
         public event UserChangesSelectionHandler OnUserChangesSelection;
 
         public delegate void UserRemoveTabHandler(object sender, EventArgs e);
-        public event UserRemoveTabHandler OnUserRemovedTab;
+        public event UserRemoveTabHandler UserWillRemoveTab;
 
         public TabControl() {
             InitializeComponent();
@@ -34,23 +34,23 @@ namespace CustomIDE {
 
             tabItem.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
             tabItem.Arrange(new Rect(tabItem.DesiredSize));
-            TotalWidth += (int)tabItem.ActualWidth;
+            TotalWidth += (int) tabItem.ActualWidth;
         }
 
         public void RemoveTab(TabItem tab) {
 
             MainGrid.Children.Remove(tab);
 
-            TotalWidth -= (int)tab.ActualWidth;
+            TotalWidth -= (int) tab.ActualWidth;
 
             int width = 0;
             foreach (TabItem tabItem in MainGrid.Children) {
                 tabItem.Margin = new Thickness(width, 0, 0, 0);
-                width += (int)tabItem.ActualWidth;
+                width += (int) tabItem.ActualWidth;
             }
 
             if (tab.isSelected && MainGrid.Children.Count > 0) {
-                TabItem tabItem = (TabItem)MainGrid.Children[0];
+                TabItem tabItem = (TabItem) MainGrid.Children[0];
                 OnUserChangesSelection(tabItem, new EventArgs());
                 Select(tabItem);
             }
@@ -78,8 +78,8 @@ namespace CustomIDE {
 
         private void TabItemClick(object sender, RoutedEventArgs e) {
 
-            Button selectButton = (Button)sender;
-            TabItem clickedItem = (TabItem)selectButton.Tag;
+            Button selectButton = (Button) sender;
+            TabItem clickedItem = (TabItem) selectButton.Tag;
 
             if (clickedItem.isSelected)
                 return;
@@ -95,9 +95,7 @@ namespace CustomIDE {
         }
 
         private void CloseFileClick(object sender, RoutedEventArgs e) {
-            TabItem tab = ((TabItem)((Button)sender).Tag);
-            RemoveTab(tab);
-            OnUserRemovedTab(sender, new EventArgs());
+            UserWillRemoveTab(sender, e);
         }
 
         public bool Contains(string path) {

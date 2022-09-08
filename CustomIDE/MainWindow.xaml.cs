@@ -40,14 +40,20 @@ namespace CustomIDE {
             FileExplorer.OpenDir(Directory.GetParent(current_file_path).FullName);
 
             TabControler.OnUserChangesSelection += TabControlUserChange;
-            TabControler.OnUserRemovedTab += TabControlRmTab;
+            TabControler.UserWillRemoveTab += TabControlRmTab;
             FileExplorer.OnUserChangesSelection += FileSelectionChange;
-            
+
 
             OpenFile(current_file_path);
         }
 
         private void TabControlRmTab(object sender, EventArgs e) {
+
+            TabItem tab = ((TabItem) ((Button) sender).Tag);
+
+            if (SaveFile())
+                TabControler.RemoveTab(tab);
+
             if (TabControler.MainGrid.Children.Count == 0) {
                 OpenFile(tempFilePath);
             }
@@ -71,8 +77,6 @@ namespace CustomIDE {
 
             current_file_path = path;
 
-            Debug.WriteLine(current_file_path);
-
             try {
                 Coder.SetText(File.ReadAllText(current_file_path));
             } catch (Exception ex) {
@@ -85,6 +89,10 @@ namespace CustomIDE {
         }
 
         private void OpenFileClick(object sender, RoutedEventArgs e) {
+
+            if (!SaveFile())
+                return;
+
             if (SelectFile() == null)
                 return;
 
@@ -231,8 +239,13 @@ namespace CustomIDE {
         private void Window_LeftMouseDowm(object sender, MouseButtonEventArgs e) {
             Point mouse_pos = Mouse.GetPosition(TitleBar);
             if (mouse_pos.Y < TitleBar.ActualHeight && mouse_pos.X < TitleBar.ActualWidth) {
-                if (WindowState != WindowState.Normal)
+                if (WindowState != WindowState.Normal) {
                     WindowState = WindowState.Normal;
+                    Point mousePos = Mouse.GetPosition(this);
+                    Top = mousePos.Y - ToolBar.ActualHeight / 2;
+                    Left = mousePos.X - ToolBar.ActualWidth / 2;
+                    Debug.WriteLine(mousePos.Y);
+                }
                 DragMove();
             }
         }
@@ -260,12 +273,16 @@ namespace CustomIDE {
             }
         }
 
-        private void CodeBoxTextChange(object sender, TextChangedEventArgs e) {
-
-        }
-
         private void OutputTextChange(object sender, TextChangedEventArgs e) {
             OutputBox.ScrollToEnd();
+        }
+
+        private void Window_SizeChanged(object sender, SizeChangedEventArgs e) {
+            if (WindowState == WindowState.Maximized) {
+                EdgeBorder.BorderThickness = new Thickness(8);
+            } else {
+                EdgeBorder.BorderThickness = new Thickness(3);
+            }
         }
     }
 }

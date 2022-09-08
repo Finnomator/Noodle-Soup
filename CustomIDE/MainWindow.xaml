@@ -6,12 +6,15 @@
         xmlns:local="clr-namespace:CustomIDE"
         mc:Ignorable="d"
         TextOptions.TextFormattingMode="Display"
+        SizeChanged="Window_SizeChanged"
+        WindowState="Maximized"
+        WindowStartupLocation="CenterScreen"
         Title="Custom IDE" Height="650" Width="1080" Closed="WindowCloses" WindowStyle="None" AllowsTransparency="True" Background="{x:Null}" Foreground="{x:Null}" MouseLeftButtonDown="Window_LeftMouseDowm">
 
     <Window.Resources>
 
         <ControlTemplate x:Key="CleanButton" TargetType="Button">
-            <Label x:Name="ButtonLabel" Content="{TemplateBinding Content}" FontSize="{TemplateBinding FontSize}" Foreground="White" Padding="0,0,0,0" BorderThickness="1,2,1,2" BorderBrush="Transparent"/>
+            <Label x:Name="ButtonLabel" Content="{TemplateBinding Content}" FontSize="{TemplateBinding FontSize}" Foreground="White" Padding="5,1,5,1" BorderThickness="1,1,1,1" BorderBrush="#00000000"/>
 
             <ControlTemplate.Triggers>
 
@@ -63,7 +66,11 @@
 
     </Window.Resources>
 
-    <Border CornerRadius="3,3,3,3" BorderThickness="5,5,5,5" BorderBrush="#FF444444">
+    <WindowChrome.WindowChrome>
+        <WindowChrome CaptionHeight="0"/>
+    </WindowChrome.WindowChrome>
+
+    <Border x:Name="EdgeBorder" CornerRadius="3,3,3,3" BorderThickness="3" BorderBrush="#FF444444">
 
         <Grid Background="#FF101010">
 
@@ -112,12 +119,12 @@
             </Grid>
             <Grid x:Name="ToolBar" Grid.ColumnSpan="3" Margin="0,23,0,0" Background="#FF545454">
                 <Button Content="Open File" Template="{StaticResource CleanButton}" Click="OpenFileClick" Margin="0,19,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                <Button Content="Save" Template="{StaticResource CleanButton}" Margin="57,19,0,0" Click="SaveClick" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <Button Content="Save" Template="{StaticResource CleanButton}" Margin="62,19,0,0" Click="SaveClick" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                 <Button Content="Options" Template="{StaticResource CleanButton}" Click="OptionsClick" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                <Button Content="Save as" Template="{StaticResource CleanButton}" Margin="88,19,0,0" Click="SaveAsClick" HorizontalAlignment="Left" VerticalAlignment="Top"/>
+                <Button Content="Save as" Template="{StaticResource CleanButton}" Margin="98,19,0,0" Click="SaveAsClick" HorizontalAlignment="Left" VerticalAlignment="Top"/>
                 <Button x:Name="RunBut" Template="{StaticResource CleanButton}" Content="Run" Click="RunScriptClick" HorizontalAlignment="Right" Margin="0,19,0,0"/>
-                <Button x:Name="StopBut" Template="{StaticResource CleanButton}" Content="Stop" Click="StopScriptClick" HorizontalAlignment="Right" IsEnabled="False" Margin="0,19,87,0"/>
-                <Button x:Name="RunNormalBut" Template="{StaticResource CleanButton}" Content="Run Local" Click="RunPythonScriptClick" HorizontalAlignment="Right" Margin="0,19,28,0"/>
+                <Button x:Name="StopBut" Template="{StaticResource CleanButton}" Content="Stop" Click="StopScriptClick" HorizontalAlignment="Right" IsEnabled="False" Margin="0,19,97,0"/>
+                <Button x:Name="RunNormalBut" Template="{StaticResource CleanButton}" Content="Run Local" Click="RunPythonScriptClick" HorizontalAlignment="Right" Margin="0,19,33,0"/>
             </Grid>
             <GridSplitter Grid.Row="2" HorizontalAlignment="Stretch" Panel.ZIndex="1" Grid.Column="2" Background="#FF353535"/>
         </Grid>
