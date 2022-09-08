@@ -1,4 +1,8 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Collections.Specialized;
+using System.Diagnostics;
+using System.Linq;
 using System.Windows.Media;
 
 class Colors {
@@ -51,9 +55,11 @@ class Colors {
         SolidColorBrush built_in_brush = new SolidColorBrush(Color.FromRgb(0xfc, 0xfa, 0x79));
 
         foreach (string keyword in keywords)
-            colors[keyword] = Brushes.Violet;
+            colors.Add(keyword, Brushes.Violet);
 
         foreach (string bi in buildt_ins)
-            colors[bi] = built_in_brush;
+            colors.Add(bi, built_in_brush);
+
+        colors = colors.OrderBy(obj => obj.Key).ToDictionary(obj => obj.Key, obj => obj.Value);
     }
 }

@@ -22,10 +22,11 @@ namespace CustomIDE {
 
         public CoderBox() {
             InitializeComponent();
-            matcher = new Matcher(Colors.keywords.Concat(Colors.buildt_ins).ToList());
+            matcher = new Matcher(Colors.colors.Keys.ToList());
             highlighter = new Highlighter(this);
-            marker = new Thread(new ThreadStart(MarkerLoop));
-            marker.IsBackground = true;
+            marker = new Thread(new ThreadStart(MarkerLoop)) {
+                IsBackground = true
+            };
             marker.Start();
         }
 
@@ -77,18 +78,14 @@ namespace CustomIDE {
         }
 
         private void BoxKeyDown(object sender, KeyEventArgs e) {
-            
+
             highlight = true;
 
             string asString = e.Key.ToString();
 
             if (asString.Length == 1 && char.IsLetter(asString[0])) {
                 typingWord += Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift) ? asString[0] : char.ToLower(asString[0]);
-                string[] matches = matcher.FindMatches(typingWord);
-                if (matches.Length == 0)
-                    RemoveSuggestions();
-                else
-                    SpawnSuggestions(matches);
+                UpdateSuggestions(typingWord);
             } else if (suggestionBox != null && e.Key == Key.Down) {
                 suggestionBox.GoDown();
                 e.Handled = true;
@@ -96,26 +93,52 @@ namespace CustomIDE {
                 suggestionBox.GoUp();
                 e.Handled = true;
             } else if (suggestionBox != null && suggestionBox.selectedButton != null && e.Key == Key.Return) {
-                string to_append = (string) suggestionBox.selectedButton.Content;
+                string to_append = (string)suggestionBox.selectedButton.Content;
                 to_append = to_append.Substring(typingWord.Length);
                 CodeTextBox.CaretPosition.InsertTextInRun(to_append);
                 CodeTextBox.CaretPosition = CodeTextBox.CaretPosition.GetPositionAtOffset(to_append.Length);
+                typingWord = "";
                 RemoveSuggestions();
                 e.Handled = true;
             } else if (e.Key == Key.Tab) {
-                CodeTextBox.CaretPosition.InsertTextInRun("    ");
-                e.Handled = true;
-            } else {
+                if (suggestionBox != null) {
+                    string to_append = (string)suggestionBox.sugButtons[0].Content;
+                    to_append = to_append.Substring(typingWord.Length);
+                    CodeTextBox.CaretPosition.InsertTextInRun(to_append);
+                    CodeTextBox.CaretPosition = CodeTextBox.CaretPosition.GetPositionAtOffset(to_append.Length);
+                } else {
+                    CodeTextBox.CaretPosition.InsertTextInRun("    ");
+                    CodeTextBox.CaretPosition = CodeTextBox.CaretPosition.GetPositionAtOffset(4);
+                }
+
+                Debug.WriteLine(suggestionBox != null && suggestionBox.sugButtons.Count == 1);
                 typingWord = "";
                 RemoveSuggestions();
+                e.Handled = true;
+            } else if (e.Key == Key.Back) {
+                if (Keyboard.IsKeyDown(Key.RightCtrl) || Keyboard.IsKeyDown(Key.LeftCtrl)) {
+                    typingWord = "";
+                } else if (typingWord != "") {
+                    typingWord = typingWord.Remove(typingWord.Length - 1);
+                    UpdateSuggestions(typingWord);
+                }
+            } else {
+                typingWord = "";
             }
+
+            if (typingWord == "")
+                RemoveSuggestions();
         }
 
-        public void SpawnSuggestions(string[] suggestions) {
+        public void UpdateSuggestions(string wordStart) {
 
             RemoveSuggestions();
 
-            suggestionBox = new SuggestionBox(suggestions);
+            string[] matches = matcher.FindMatches(wordStart);
+            if (matches.Length == 0)
+                return;
+
+            suggestionBox = new SuggestionBox(matches);
 
             TextPointer caretPos = CodeTextBox.CaretPosition;
             int lines = new TextRange(CodeTextBox.Document.ContentStart, caretPos).Text.Split('\n').Length;
@@ -160,7 +183,7 @@ namespace CustomIDE {
 
     public class SuggestionBox : Border {
 
-        List<Button> sugButtons = new List<Button>();
+        public List<Button> sugButtons = new List<Button>();
         public Button selectedButton = null;
         int selectedButtonIdx = -1;
         SolidColorBrush selectedBrush = new SolidColorBrush(Color.FromArgb(100, 255, 255, 255));
@@ -170,6 +193,7 @@ namespace CustomIDE {
         ScrollViewer scrollViewer = new ScrollViewer();
 
         public SuggestionBox(string[] suggestions) : base() {
+
             SetValue(Grid.ColumnProperty, 1);
             HorizontalAlignment = HorizontalAlignment.Left;
             VerticalAlignment = VerticalAlignment.Top;
@@ -222,6 +246,7 @@ namespace CustomIDE {
                 selectedButtonIdx = 0;
             selectedButton = sugButtons[selectedButtonIdx];
             selectedButton.Background = selectedBrush;
+            scrollViewer.ScrollToVerticalOffset((selectedButtonIdx - 6) * selectedButton.ActualHeight);
         }
 
         public void GoUp() {
@@ -231,6 +256,7 @@ namespace CustomIDE {
                 selectedButtonIdx = sugButtons.Count - 1;
             selectedButton = sugButtons[selectedButtonIdx];
             selectedButton.Background = selectedBrush;
+            scrollViewer.ScrollToVerticalOffset((selectedButtonIdx - 6) * selectedButton.ActualHeight);
         }
     }
 }

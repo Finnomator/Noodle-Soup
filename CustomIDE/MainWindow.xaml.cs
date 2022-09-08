@@ -244,7 +244,6 @@ namespace CustomIDE {
                     Point mousePos = Mouse.GetPosition(this);
                     Top = mousePos.Y - ToolBar.ActualHeight / 2;
                     Left = mousePos.X - ToolBar.ActualWidth / 2;
-                    Debug.WriteLine(mousePos.Y);
                 }
                 DragMove();
             }
