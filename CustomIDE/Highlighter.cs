@@ -37,7 +37,6 @@ public class Highlighter {
         while (pointer != null) {
             if (pointer.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text) {
                 string textRun = pointer.GetTextInRun(LogicalDirection.Forward);
-                Debug.WriteLine(textRun);
 
                 MatchCollection matches = Regex.Matches(textRun, pattern);
                 foreach (Match match in matches) {

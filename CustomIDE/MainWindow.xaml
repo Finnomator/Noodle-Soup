@@ -103,7 +103,8 @@
                 </Grid.RowDefinitions>
 
                 <local:TabControl x:Name="TabControler"/>
-                <local:CoderBox x:Name="Coder" Grid.Row="1"/>
+                <local:CoderBox x:Name="Coder" Grid.Row="1" IsEnabled="False"/>
+                <local:BetterTextBox x:Name="GoodTextBox" Grid.Row="1" Panel.ZIndex="1"/>
             </Grid>
             <Grid x:Name="TitleBar" Grid.ColumnSpan="3" Background="#FF444444" Height="23" VerticalAlignment="Top">
                 <Button Template="{StaticResource WindowControlTemplate}" Click="CloseClick" HorizontalAlignment="Right" Panel.ZIndex="1">

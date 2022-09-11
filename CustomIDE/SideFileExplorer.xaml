@@ -11,7 +11,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <TextBlock x:Name="PathBox" FontFamily="Cascadia Mono" FontSize="9" Text="Path" Foreground="White" Background="#FF292929" TextWrapping="Wrap"/>
+        <TextBlock x:Name="PathBox" FontSize="9" Text="Path" Foreground="White" Background="#FF292929" TextWrapping="Wrap"/>
         <ListBox x:Name="FileExplorer" Grid.Row="1" Background="#FF292929" FontFamily="Cascadia Code" BorderBrush="#FF4C4C4C" BorderThickness="0,1,0,0" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
             <ListBox.Resources>
                 <sys:Double x:Key="{x:Static SystemParameters.HorizontalScrollBarHeightKey}">10</sys:Double>
