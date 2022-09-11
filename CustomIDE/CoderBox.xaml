@@ -13,7 +13,7 @@
                 <ColumnDefinition Width="*"/>
             </Grid.ColumnDefinitions>
             <TextBlock x:Name="LineNumsBox" TextWrapping="Wrap" Foreground="#FF9A9A9A" FontFamily="Cascadia Code" Text="1" Background="#FF1F1F1F" TextAlignment="Right" HorizontalAlignment="Center" FontSize="14"/>
-            <RichTextBox x:Name="CodeTextBox" Grid.Column="1" FontFamily="Cascadia Code" Foreground="White" BorderThickness="1,0,0,1" UndoLimit="1000" AcceptsReturn="True" AcceptsTab="True" Background="#FF1F1F1F" BorderBrush="#FF1F1F1F" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextChanged="CodeBoxTextChange" MinWidth="1000" FontSize="14" PreviewKeyDown="BoxKeyDown">
+            <RichTextBox x:Name="CodeTextBox" Grid.Column="1" FontFamily="Cascadia Code" Foreground="White" BorderThickness="1,0,0,1" UndoLimit="1000" AcceptsReturn="True" AcceptsTab="True" Background="#FF1F1F1F" BorderBrush="#FF1F1F1F" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" TextChanged="CodeBoxTextChange" MinWidth="10000" FontSize="14" PreviewKeyDown="BoxKeyDown">
                 
                 <RichTextBox.Resources>
                     <Style TargetType="RichTextBox">

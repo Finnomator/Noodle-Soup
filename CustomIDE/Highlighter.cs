@@ -1,11 +1,8 @@
 ﻿using CustomIDE;
-using Newtonsoft.Json;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
-using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Media;
@@ -34,12 +31,14 @@ public class Highlighter {
     }
 
 
-    public static IEnumerable<TextRange> GetAllWordRanges(FlowDocument document) {
+    public IEnumerable<TextRange> GetAllWordRanges(FlowDocument document) {
         string pattern = @"[^\W\d](\w|[-']{1,2}(?=\w))*";
         TextPointer pointer = document.ContentStart;
         while (pointer != null) {
             if (pointer.GetPointerContext(LogicalDirection.Forward) == TextPointerContext.Text) {
                 string textRun = pointer.GetTextInRun(LogicalDirection.Forward);
+                Debug.WriteLine(textRun);
+
                 MatchCollection matches = Regex.Matches(textRun, pattern);
                 foreach (Match match in matches) {
                     int startIndex = match.Index;
@@ -48,8 +47,12 @@ public class Highlighter {
                     TextPointer end = start.GetPositionAtOffset(length);
                     yield return new TextRange(start, end);
                 }
+
+                //pointer = pointer.GetPositionAtOffset(pointer.GetTextRunLength(LogicalDirection.Forward));
             }
             pointer = pointer.GetNextContextPosition(LogicalDirection.Forward);
+            // pointer not going to new position
         }
     }
+
 }
