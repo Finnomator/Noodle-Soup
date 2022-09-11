@@ -103,6 +103,8 @@ namespace CustomIDE {
                 Box.Items.Remove(Children[i]);
             }
             Children.Clear();
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
         }
 
         public void Indent(int indent) {

@@ -77,10 +77,7 @@ namespace CustomIDE {
             }
         }
 
-        private void BoxKeyDown(object sender, KeyEventArgs e) {
-
-            highlight = true;
-
+        private void HandleSuggestion(KeyEventArgs e) {
             string asString = e.Key.ToString();
 
             if (asString.Length == 1 && char.IsLetter(asString[0])) {
@@ -110,8 +107,6 @@ namespace CustomIDE {
                     CodeTextBox.CaretPosition.InsertTextInRun("    ");
                     CodeTextBox.CaretPosition = CodeTextBox.CaretPosition.GetPositionAtOffset(4);
                 }
-
-                Debug.WriteLine(suggestionBox != null && suggestionBox.sugButtons.Count == 1);
                 typingWord = "";
                 RemoveSuggestions();
                 e.Handled = true;
@@ -128,6 +123,24 @@ namespace CustomIDE {
 
             if (typingWord == "")
                 RemoveSuggestions();
+        }
+
+
+        private void BoxKeyDown(object sender, KeyEventArgs e) {
+
+            highlight = true;
+
+            HandleSuggestion(e);
+
+            if (e.Key == Key.Return) {
+                TextPointer tp = CodeTextBox.CaretPosition.GetNextContextPosition(LogicalDirection.Backward);
+                TextRange tr = new TextRange(tp, CodeTextBox.CaretPosition);
+                if (tr.Text == ":") {
+                    CodeTextBox.CaretPosition.InsertTextInRun("\n    ");
+                    CodeTextBox.CaretPosition = CodeTextBox.CaretPosition.GetPositionAtOffset(4);
+                    e.Handled = true;
+                }
+            }
         }
 
         public void UpdateSuggestions(string wordStart) {
