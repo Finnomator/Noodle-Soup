@@ -5,8 +5,9 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows.Media;
 
-class Colors {
-    public static string[] keywords = {
+namespace Colors {
+    public class KeyWords {
+        public static string[] keywords = {
         "False",
         "None",
         "True",
@@ -44,22 +45,37 @@ class Colors {
         "yield"
     };
 
-    public static string[] buildt_ins = {
-        "abs", "aiter", "all", "any", "anext", "ascii", "bin", "bool", "breakpoint", "bytearray", "bytes", "callable", "chr", "classmethod", "compile", "complex", "delattr", "dict", "dir", "divmod", "enumerate", "eval", "exec", "filter", "float", "format", "frozenset", "getattr", "globals", "hasattr", "hash", "help", "hex", "id", "input", "int", "isinstance", "issubclass", "iter", "len", "list", "locals", "map", "max", "memoryview", "min", "next", "object", "oct", "open", "ord", "pow", "print", "property", "range", "repr", "reversed", "round", "set", "setattr", "slice", "sorted", "staticmethod", "str", "sum", "super", "tuple", "type", "vars", "zip"
-    };
+        public static string[] buildtIns = {
+        "abs", "aiter", "all", "any", "anext", "ascii", "bin", "bool", "breakpoint", "bytearray", "bytes", "callable", "chr", "classmethod", "compile", "complex", "delattr", "dict", "dir", "divmod", "enumerate", "eval", "exec", "filter", "float", "format", "frozenset", "getattr", "globals", "hasattr", "hash", "help", "hex", "id", "input", "int", "isinstance", "issubclass", "iter", "len", "list", "locals", "map", "max", "memoryview", "min", "next", "object", "oct", "open", "ord", "pow", "print", "property", "range", "repr", "reversed", "round", "set", "setattr", "slice", "sorted", "staticmethod", "str", "sum", "super", "tuple", "type", "vars", "zip"};
+        protected static SolidColorBrush keywordsColor = Brushes.Violet;
+        protected static SolidColorBrush builtInsColor = new SolidColorBrush(Color.FromRgb(0xfc, 0xfa, 0x79));
+        protected static SolidColorBrush defaultColor = Brushes.White;
+        public readonly static SolidColorBrush integerColor = new SolidColorBrush(Color.FromRgb(224, 197, 153));
+        public readonly static SolidColorBrush commentsColor = Brushes.Green;
+        public readonly static SolidColorBrush FloatColor = new SolidColorBrush(Color.FromRgb(255, 244, 128));
+    }
 
-    public static Dictionary<string, SolidColorBrush> colors = new Dictionary<string, SolidColorBrush>();
 
-    static Colors() {
+    public class ColorDict : KeyWords {
+        private static Dictionary<string, SolidColorBrush> colorDict = new Dictionary<string, SolidColorBrush>();
+        static ColorDict() {
+            UpdateColors();
+        }
 
-        SolidColorBrush built_in_brush = new SolidColorBrush(Color.FromRgb(0xfc, 0xfa, 0x79));
+        private static void UpdateColors() {
+            foreach (string keyword in keywords)
+                colorDict[keyword] = keywordsColor;
 
-        foreach (string keyword in keywords)
-            colors.Add(keyword, Brushes.Violet);
+            foreach (string bi in buildtIns)
+                colorDict[bi] = builtInsColor;
 
-        foreach (string bi in buildt_ins)
-            colors.Add(bi, built_in_brush);
+            colorDict = colorDict.OrderBy(obj => obj.Key).ToDictionary(obj => obj.Key, obj => obj.Value);
+        }
 
-        colors = colors.OrderBy(obj => obj.Key).ToDictionary(obj => obj.Key, obj => obj.Value);
+        public static SolidColorBrush Get(string key) {
+            if (colorDict.ContainsKey(key))
+                return colorDict[key];
+            return defaultColor;
+        }
     }
 }

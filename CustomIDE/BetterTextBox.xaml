@@ -4,9 +4,14 @@
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:CustomIDE"
-             mc:Ignorable="d">
-    <Grid>
-        <TextBox x:Name="MainTextBox" TextWrapping="Wrap" MinWidth="1000" Background="#FF484848" Foreground="White" FontFamily="Cascadia Mono" TextChanged="TextChange" AcceptsTab="True" AcceptsReturn="True" FontSize="14"/>
-        <Grid x:Name="MainGrid"/>
-    </Grid>
+             mc:Ignorable="d"
+             TextOptions.TextFormattingMode="Display">
+    <ScrollViewer>
+
+        <Grid x:Name="MainGrid" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" >
+            <TextBox x:Name="MainTextBox" Background="#FF484848" Foreground="{x:Null}" FontFamily="Cascadia Mono" TextChanged="TextChange" AcceptsTab="True" AcceptsReturn="True" FontSize="14" PreviewKeyDown="TextBox_KeyDown"/>
+            <Grid x:Name="TextGrid"/>
+        </Grid>
+    </ScrollViewer>
+
 </UserControl>

@@ -103,7 +103,7 @@
                 </Grid.RowDefinitions>
 
                 <local:TabControl x:Name="TabControler"/>
-                <local:CoderBox x:Name="Coder" Grid.Row="1" IsEnabled="False"/>
+                <!--<local:CoderBox x:Name="Coder" Grid.Row="1" IsEnabled="False"/>-->
                 <local:BetterTextBox x:Name="GoodTextBox" Grid.Row="1" Panel.ZIndex="1"/>
             </Grid>
             <Grid x:Name="TitleBar" Grid.ColumnSpan="3" Background="#FF444444" Height="23" VerticalAlignment="Top">
@@ -128,6 +128,7 @@
                 <Button x:Name="RunNormalBut" Template="{StaticResource CleanButton}" Content="Run Local" Click="RunPythonScriptClick" HorizontalAlignment="Right" Margin="0,19,33,0"/>
             </Grid>
             <GridSplitter Grid.Row="2" HorizontalAlignment="Stretch" Panel.ZIndex="1" Grid.Column="2" Background="#FF353535"/>
+            <Button Grid.Column="2" Content="Analyze" HorizontalAlignment="Left" Margin="82,30,0,0" VerticalAlignment="Top" Click="AnalyzeClick"/>
         </Grid>
     </Border>
 </Window>

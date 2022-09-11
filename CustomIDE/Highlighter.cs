@@ -1,4 +1,5 @@
-﻿using CustomIDE;
+﻿using Colors;
+using CustomIDE;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -22,11 +23,8 @@ public class Highlighter {
         IEnumerable<TextRange> wordRanges = GetAllWordRanges(textBox.Document);
         foreach (TextRange wordRange in wordRanges) {
             string word = wordRange.Text;
-            if (Colors.colors.Keys.Contains(word)) {
-                wordRange.ApplyPropertyValue(TextElement.ForegroundProperty, Colors.colors[word]);
-            } else {
-                wordRange.ApplyPropertyValue(TextElement.ForegroundProperty, Brushes.White);
-            }
+            wordRange.ApplyPropertyValue(TextElement.ForegroundProperty, ColorDict.Get(word));
+            
         }
     }
 

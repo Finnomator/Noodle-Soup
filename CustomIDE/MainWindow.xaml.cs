@@ -78,7 +78,7 @@ namespace CustomIDE {
             current_file_path = path;
 
             try {
-                Coder.SetText(File.ReadAllText(current_file_path));
+                GoodTextBox.SetText(File.ReadAllText(current_file_path));
             } catch (Exception ex) {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
@@ -111,7 +111,7 @@ namespace CustomIDE {
 
         private bool SaveFile() {
             try {
-                File.WriteAllText(current_file_path, Coder.GetText());
+                File.WriteAllText(current_file_path, GoodTextBox.GetText());
             } catch (Exception ex) {
                 MessageBoxResult boxResult = MessageBox.Show(ex.Message + "\nContinue without saving?", "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 return boxResult == MessageBoxResult.Yes;
@@ -282,6 +282,10 @@ namespace CustomIDE {
             } else {
                 EdgeBorder.BorderThickness = new Thickness(3);
             }
+        }
+
+        private void AnalyzeClick(object sender, RoutedEventArgs e) {
+            Analyzer analyzer = new Analyzer();
         }
     }
 }

@@ -111,6 +111,7 @@
     <Compile Include="BetterTextBox.xaml.cs">
       <DependentUpon>BetterTextBox.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Analyze.cs" />
     <Compile Include="TabControl.xaml.cs">
       <DependentUpon>TabControl.xaml</DependentUpon>
     </Compile>

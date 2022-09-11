@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Colors;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -9,6 +10,7 @@ using System.Windows.Controls;
 using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
+using Styles;
 
 namespace CustomIDE {
     public partial class CoderBox : UserControl {
@@ -22,7 +24,7 @@ namespace CustomIDE {
 
         public CoderBox() {
             InitializeComponent();
-            matcher = new Matcher(Colors.colors.Keys.ToList());
+            matcher = new Matcher(KeyWords.keywords.Concat(KeyWords.buildtIns).ToList());
             highlighter = new Highlighter(this);
             marker = new Thread(new ThreadStart(MarkerLoop)) {
                 IsBackground = true
@@ -151,7 +153,7 @@ namespace CustomIDE {
             if (matches.Length == 0)
                 return;
 
-            suggestionBox = new SuggestionBox(matches);
+            suggestionBox = new SuggestionBox();
 
             TextPointer caretPos = CodeTextBox.CaretPosition;
             int lines = new TextRange(CodeTextBox.Document.ContentStart, caretPos).Text.Split('\n').Length;
@@ -190,86 +192,6 @@ namespace CustomIDE {
 
         public void AddToCompare(string s) {
             toCompareTos.Add(s);
-        }
-    }
-
-
-    public class SuggestionBox : Border {
-
-        public List<Button> sugButtons = new List<Button>();
-        public Button selectedButton = null;
-        int selectedButtonIdx = -1;
-        SolidColorBrush selectedBrush = new SolidColorBrush(Color.FromArgb(100, 255, 255, 255));
-        SolidColorBrush unselectedBrush = new SolidColorBrush(Color.FromArgb(50, 255, 255, 255));
-        SolidColorBrush borderBrush = Brushes.Gray;
-        Grid mainGrid = new Grid();
-        ScrollViewer scrollViewer = new ScrollViewer();
-
-        public SuggestionBox(string[] suggestions) : base() {
-
-            SetValue(Grid.ColumnProperty, 1);
-            HorizontalAlignment = HorizontalAlignment.Left;
-            VerticalAlignment = VerticalAlignment.Top;
-
-            BorderBrush = borderBrush;
-            BorderThickness = new Thickness(1, 1, 1, 1);
-
-            MaxWidth = 200;
-            MaxHeight = 200;
-
-            scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
-            scrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
-
-            for (int i = 0; i < suggestions.Length; i++) {
-
-                mainGrid.RowDefinitions.Add(new RowDefinition());
-
-                string suggestion = suggestions[i];
-
-                Button sug = new Button {
-                    Content = suggestion,
-                    VerticalContentAlignment = VerticalAlignment.Top,
-                    HorizontalContentAlignment = HorizontalAlignment.Left,
-                    HorizontalAlignment = HorizontalAlignment.Stretch,
-                    VerticalAlignment = VerticalAlignment.Top,
-                    Background = unselectedBrush,
-                    FontSize = 12,
-                    FontFamily = new FontFamily("Cascadia Mono"),
-                    Foreground = Colors.colors[suggestion],
-                    BorderThickness = new Thickness(0, 0, 0, 0),
-                    Padding = new Thickness(1, 0, 1, 0),
-                };
-
-                sug.SetValue(Grid.RowProperty, i);
-
-                sugButtons.Add(sug);
-
-                mainGrid.Children.Add(sug);
-            }
-
-            scrollViewer.Content = mainGrid;
-            Child = scrollViewer;
-        }
-
-        public void GoDown() {
-            if (selectedButton != null)
-                selectedButton.Background = unselectedBrush;
-            selectedButtonIdx++;
-            if (selectedButtonIdx >= sugButtons.Count)
-                selectedButtonIdx = 0;
-            selectedButton = sugButtons[selectedButtonIdx];
-            selectedButton.Background = selectedBrush;
-            scrollViewer.ScrollToVerticalOffset((selectedButtonIdx - 6) * selectedButton.ActualHeight);
-        }
-
-        public void GoUp() {
-            selectedButton.Background = unselectedBrush;
-            selectedButtonIdx--;
-            if (selectedButtonIdx == -1)
-                selectedButtonIdx = sugButtons.Count - 1;
-            selectedButton = sugButtons[selectedButtonIdx];
-            selectedButton.Background = selectedBrush;
-            scrollViewer.ScrollToVerticalOffset((selectedButtonIdx - 6) * selectedButton.ActualHeight);
         }
     }
 }

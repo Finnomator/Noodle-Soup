@@ -1,6 +1,9 @@
-﻿using CustomIDE;
+﻿using Colors;
+using CustomIDE;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -97,11 +100,140 @@ namespace Styles {
         }
     }
 
-    public class TextSuggestionButton : Button {
-        public TextSuggestionButton(string content) : base() {
-            Content = content;
-            Foreground = Brushes.White;
-            Background = null;
+    public class SuggestionBox : Border {
+
+        public delegate void ClickedSuggestion(object sender, System.EventArgs e);
+        public event ClickedSuggestion SuggestionClick;
+
+        public List<Button> sugButtons = new List<Button>();
+        public Button selectedButton = null;
+        int selectedButtonIdx = -1;
+        SolidColorBrush selectedBrush = new SolidColorBrush(Color.FromArgb(255, 150, 150, 150));
+        SolidColorBrush unselectedBrush = new SolidColorBrush(Color.FromArgb(255, 100, 100, 100));
+        SolidColorBrush borderBrush = Brushes.Gray;
+        Grid mainGrid = new Grid();
+        ScrollViewer scrollViewer = new ScrollViewer();
+        public string typingWord = "";
+        public string[] possibleWords = KeyWords.keywords.Concat(KeyWords.buildtIns).ToArray();
+        public bool isOpen;
+
+        public SuggestionBox() : base() {
+
+            HorizontalAlignment = HorizontalAlignment.Left;
+            VerticalAlignment = VerticalAlignment.Top;
+
+            BorderBrush = borderBrush;
+            BorderThickness = new Thickness(1, 1, 1, 1);
+
+            MaxWidth = 200;
+            MaxHeight = 200;
+
+            scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
+            scrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
+
+            scrollViewer.Content = mainGrid;
+            Child = scrollViewer;
+            Close();
+        }
+
+        public void Close() {
+            mainGrid.Children.Clear();
+            sugButtons.Clear();
+            Visibility = Visibility.Hidden;
+            isOpen = false;
+        }
+
+        public IEnumerable<string> FindMatches(string wordStart) {
+
+            foreach (string word in possibleWords) {
+                if (word.StartsWith(wordStart) && word.Length != wordStart.Length) {
+                    yield return word;
+                }
+            }
+        }
+
+        private void UpdateTypingWord() {
+
+            mainGrid.Children.Clear();
+            mainGrid.RowDefinitions.Clear();
+            sugButtons.Clear();
+
+            foreach (string suggestion in FindMatches(typingWord)) {
+                mainGrid.RowDefinitions.Add(new RowDefinition());
+
+                Button sug = new Button {
+                    Content = suggestion,
+                    VerticalContentAlignment = VerticalAlignment.Top,
+                    HorizontalContentAlignment = HorizontalAlignment.Left,
+                    HorizontalAlignment = HorizontalAlignment.Stretch,
+                    VerticalAlignment = VerticalAlignment.Top,
+                    Background = unselectedBrush,
+                    FontSize = 12,
+                    FontFamily = new FontFamily("Cascadia Mono"),
+                    Foreground = ColorDict.Get(suggestion),
+                    BorderThickness = new Thickness(0, 0, 0, 0),
+                    Padding = new Thickness(1, 0, 1, 0),
+                };
+
+                sug.Click += SugButtonClick;
+
+                sug.SetValue(Grid.RowProperty, mainGrid.RowDefinitions.Count - 1);
+
+                sugButtons.Add(sug);
+
+                mainGrid.Children.Add(sug);
+            }
+
+            if (mainGrid.Children.Count == 0)
+                Close();
+        }
+
+        private void SugButtonClick(object sender, System.EventArgs e) {
+            SuggestionClick(sender, e);
+        }
+
+        public void Update(string wordStart, int x, int y) {
+
+            if (wordStart == typingWord)
+                return;
+
+            Margin = new Thickness(x, y, 0, 0);
+
+            if (wordStart == "")
+                Close();
+            else
+                Open(wordStart);
+        }
+
+        public void Open(string wordStart) {
+            Visibility = Visibility.Visible;
+            typingWord = wordStart;
+            isOpen = true;
+            selectedButton = null;
+            selectedButtonIdx = -1;
+            UpdateTypingWord();
+        }
+
+        public void GoDown() {
+            if (selectedButton != null)
+                selectedButton.Background = unselectedBrush;
+            selectedButtonIdx++;
+            if (selectedButtonIdx >= sugButtons.Count)
+                selectedButtonIdx = 0;
+            selectedButton = sugButtons[selectedButtonIdx];
+            selectedButton.Background = selectedBrush;
+            scrollViewer.ScrollToVerticalOffset((selectedButtonIdx - 6) * selectedButton.ActualHeight);
+        }
+
+        public void GoUp() {
+            if (selectedButton != null)
+                selectedButton.Background = unselectedBrush;
+            selectedButtonIdx--;
+            if (selectedButtonIdx < 0)
+                selectedButtonIdx = sugButtons.Count - 1;
+            selectedButton = sugButtons[selectedButtonIdx];
+            selectedButton.Background = selectedBrush;
+            scrollViewer.ScrollToVerticalOffset((selectedButtonIdx - 6) * selectedButton.ActualHeight);
         }
     }
 }
