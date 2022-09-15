@@ -1,4 +1,5 @@
-﻿using Newtonsoft.Json;
+﻿using CustomIDE.Properties;
+using Styles;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -6,78 +7,103 @@ using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Windows;
+using System.Windows.Controls;
 
 namespace CustomIDE {
     public partial class Options : Window {
-        public Dictionary<string, string> settings;
-        string[] ports;
         readonly string settingsPath = Path.GetFullPath("settings.json");
+        private string[] AvailablePorts;
         public Options() {
             InitializeComponent();
-            settings = LoadSettings();
-            ComPortBox.SelectedItem = CheckCOMPort();
-            AmpyStatus.Content = "Adafruit Ampy: " + settings["Ampy"];
-            PythonStatus.Content = "Python: " + settings["Python"];
-            InstallAmpyBut.IsEnabled = settings["Ampy"] == "Not Installed";
-            InstallPythonBut.IsEnabled = settings["Python"] == "Not Installed";
+            AvailablePorts = GetCOMPorts();
+            SetContentsToSettings();
         }
 
-        public Dictionary<string, string> LoadSettings() {
-            return JsonConvert.DeserializeObject<Dictionary<string, string>>(File.ReadAllText(settingsPath));
-        }
+        private void SetContentsToSettings() {
+            AmpyStatus.Content = "Ampy: " + (Settings.Default.AmpyInstalled ? "Installed" : "Not installed");
+            PythonStatus.Content = "Python: " + (Settings.Default.PythonInstalled ? "Installed" : "Not installed");
+            InstallAmpyBut.IsEnabled = !Settings.Default.AmpyInstalled;
+            InstallPythonBut.IsEnabled = !Settings.Default.PythonInstalled;
 
-        public void UpdateSettings(string option, string value) {
-            settings[option] = value;
-            File.WriteAllText(settingsPath, JsonConvert.SerializeObject(settings));
+            string[] com_ports = AvailablePorts;
+            for (int i = 0; i < com_ports.Length; i++) {
+                string port = com_ports[i];
+                ComPortItem comPortItem = new ComPortItem(port, Int32.Parse(port.Substring(3)));
+                ComPortBox.Items.Add(comPortItem);
+                if (Settings.Default.SelectedCOMPort == comPortItem.Port)
+                    ComPortBox.SelectedIndex = i+1;
+            }
         }
 
         private void ApplyClick(object sender, RoutedEventArgs e) {
-            UpdateSettings("COM", ComPortBox.SelectedItem.ToString());
             Close();
         }
 
         private void InstallAmpy() {
-            Process p = new Process();
-            p.StartInfo.CreateNoWindow = true;
-            p.StartInfo.UseShellExecute = false;
-            p.StartInfo.FileName = "pip";
-            p.StartInfo.Arguments = "install adafruit-ampy";
+            Process p = new Process {
+                StartInfo = new ProcessStartInfo {
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    FileName = "pip",
+                    Arguments = "install adafruit-ampy",
+                }
+            };
+
             p.Start();
             p.WaitForExit();
         }
 
-        public string CeckAmpyInstallation() {
-            Process p = new Process();
-            p.StartInfo.CreateNoWindow = true;
-            p.StartInfo.UseShellExecute = false;
-            p.StartInfo.RedirectStandardOutput = true;
-            p.StartInfo.FileName = "pip";
-            p.StartInfo.Arguments = "list";
-            p.Start();
-            p.WaitForExit();
-
-            return p.StandardOutput.ReadToEnd().Contains("adafruit-ampy ") ? "Installed" : "Not Installed";
+        public string[] GetCOMPorts() {
+            return SerialPort.GetPortNames();
         }
 
-        public string CheckPythonInstallation() {
-            Process p = new Process();
-            p.StartInfo.CreateNoWindow = true;
-            p.StartInfo.UseShellExecute = false;
-            p.StartInfo.RedirectStandardOutput = true;
-            p.StartInfo.FileName = "python";
-            p.StartInfo.Arguments = "--version";
+        public bool IsCOMPortAvailable(string com) {
+            return GetCOMPorts().Contains(com);
+        }
+
+        public bool IsCOMPortAvailable(int com) {
+            return IsCOMPortAvailable("COM" + com);
+        }
+
+        public bool IsAmpyInstalled() {
+            Process p = new Process {
+                StartInfo = new ProcessStartInfo {
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    FileName = "pip",
+                    Arguments = "list",
+                }
+            };
             p.Start();
             p.WaitForExit();
 
-            return p.StandardOutput.ReadToEnd().Contains("Python ") ? "Installed" : "Not Installed";
+            return p.StandardOutput.ReadToEnd().Contains("adafruit-ampy ");
+        }
+
+        public bool IsPythonInstalled() {
+            Process p = new Process {
+                StartInfo = new ProcessStartInfo {
+                    CreateNoWindow = true,
+                    UseShellExecute = false,
+                    RedirectStandardOutput = true,
+                    FileName = "python",
+                    Arguments = "--version",
+                }
+            };
+            p.Start();
+            p.WaitForExit();
+
+            return p.StandardOutput.ReadToEnd().Contains("Python ");
         }
 
         private void InstallAmpyClick(object sender, RoutedEventArgs e) {
             AmpyStatus.Content = "Adafruit Ampy: Installing...";
             InstallAmpy();
-            if (CeckAmpyInstallation() == "Installed") {
-                UpdateSettings("Ampy", "Installed");
+            if (IsAmpyInstalled()) {
                 AmpyStatus.Content = "Adafruit Ampy: Installed";
+                Settings.Default.AmpyInstalled = true;
             } else {
                 MessageBox.Show("Failed to install Ampy", "Warning", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
@@ -87,29 +113,32 @@ namespace CustomIDE {
             Process.Start("https://www.python.org/downloads/");
         }
 
-        public string CheckCOMPort() {
-            ports = SerialPort.GetPortNames();
-            if (ports.Contains(settings["COM"])) {
-                return settings["COM"];
-            } else {
-                UpdateSettings("COM", "None");
-                return "None";
+        private void UpdatePortBox() {
+            ComPortBox.Items.Clear();
+            ComPortBox.Items.Add(new ComPortItem("None", -1));
+            foreach(string port in AvailablePorts) { 
+                ComPortBox.Items.Add(new ComPortItem(port, Int32.Parse(port.Substring(3))));
             }
         }
 
 
         private void OpenPortBox(object sender, System.EventArgs e) {
-            CheckCOMPort();
-            ComPortBox.Items.Clear();
-            ComPortBox.Items.Add("None");
-            foreach (string port in ports) {
-                ComPortBox.Items.Add(port);
-            }
+            UpdatePortBox();
         }
 
         private void ClosePortBox(object sender, System.EventArgs e) {
             if (ComPortBox.SelectedItem == null)
-                ComPortBox.SelectedItem = "None";
+                ComPortBox.SelectedIndex = 0;
+        }
+
+        private void Window_Closing(object sender, System.ComponentModel.CancelEventArgs e) {
+            Settings.Default.SelectedCOMPort = ((ComPortItem) ComPortBox.SelectedItem).Port;
+            Settings.Default.Save();
+        }
+
+        private void RefreshClick(object sender, RoutedEventArgs e) {
+            AvailablePorts = GetCOMPorts();
         }
     }
+
 }

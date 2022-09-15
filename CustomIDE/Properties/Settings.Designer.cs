@@ -22,5 +22,53 @@ namespace CustomIDE.Properties {
                 return defaultInstance;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("-1")]
+        public int SelectedCOMPort {
+            get {
+                return ((int)(this["SelectedCOMPort"]));
+            }
+            set {
+                this["SelectedCOMPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AmpyInstalled {
+            get {
+                return ((bool)(this["AmpyInstalled"]));
+            }
+            set {
+                this["AmpyInstalled"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool PythonInstalled {
+            get {
+                return ((bool)(this["PythonInstalled"]));
+            }
+            set {
+                this["PythonInstalled"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("Temp.py")]
+        public string LastOpenedFilePath {
+            get {
+                return ((string)(this["LastOpenedFilePath"]));
+            }
+            set {
+                this["LastOpenedFilePath"] = value;
+            }
+        }
     }
 }

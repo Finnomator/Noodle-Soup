@@ -128,7 +128,6 @@
                 <Button x:Name="RunNormalBut" Template="{StaticResource CleanButton}" Content="Run Local" Click="RunPythonScriptClick" HorizontalAlignment="Right" Margin="0,19,33,0"/>
             </Grid>
             <GridSplitter Grid.Row="2" HorizontalAlignment="Stretch" Panel.ZIndex="1" Grid.Column="2" Background="#FF353535"/>
-            <Button Grid.Column="2" Content="Analyze" HorizontalAlignment="Left" Margin="82,30,0,0" VerticalAlignment="Top" Click="AnalyzeClick"/>
         </Grid>
     </Border>
 </Window>

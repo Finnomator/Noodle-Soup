@@ -1,5 +1,4 @@
-﻿using Newtonsoft.Json;
-using System.Diagnostics;
+﻿using System.Diagnostics;
 
 public class Analyzer {
     public Analyzer() {

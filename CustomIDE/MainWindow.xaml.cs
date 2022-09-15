@@ -4,48 +4,57 @@ using System.Windows;
 using System.Windows.Documents;
 using System.IO;
 using System.Diagnostics;
-using Newtonsoft.Json;
 using System.Windows.Input;
 using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.Win32;
+using CustomIDE.Properties;
 
 namespace CustomIDE {
 
     public partial class MainWindow : Window {
 
-        string current_file_path;
-        Process CodeRunner;
-        Options options;
-        bool runningCommand = false;
-        readonly ProcessStartInfo startInfo = new ProcessStartInfo {
+        private string current_file_path;
+        private Process CodeRunner;
+        private Options options;
+        private bool runningCommand = false;
+        private readonly ProcessStartInfo startInfo = new ProcessStartInfo {
             RedirectStandardError = true,
             RedirectStandardOutput = true,
             UseShellExecute = false,
             CreateNoWindow = true,
             RedirectStandardInput = true
         };
-        string tempFilePath = Path.GetFullPath("Temp.py");
+        private string tempFilePath = Path.GetFullPath("Temp.py");
 
         public MainWindow() {
             InitializeComponent();
             options = new Options();
-            options.UpdateSettings("Python", options.CheckPythonInstallation());
-            options.UpdateSettings("Ampy", options.CeckAmpyInstallation());
+            Settings.Default.PythonInstalled = options.IsPythonInstalled();
+            Settings.Default.AmpyInstalled = options.IsAmpyInstalled();
+            Settings.Default.Save();
 
-            current_file_path = Path.GetFullPath(options.settings["Last File Path"]);
-
+            current_file_path = Path.GetFullPath(Settings.Default.LastOpenedFilePath);
 
             FileExplorer.OpenDir(Directory.GetParent(current_file_path).FullName);
 
             TabControler.OnUserChangesSelection += TabControlUserChange;
             TabControler.UserWillRemoveTab += TabControlRmTab;
             FileExplorer.OnUserChangesSelection += FileSelectionChange;
+            GoodTextBox.HotkeyPressed += GoodTextBox_HotkeyPressed;
 
 
             OpenFile(current_file_path);
         }
+
+        private void GoodTextBox_HotkeyPressed(object sender, HotkeyEventArgs e) {
+            if (e.PressedKeys.Length == 2) {
+                if (e.PressedKeys.Contains(Key.LeftCtrl) && e.PressedKeys.Contains(Key.S))
+                    SaveFile();
+            }
+        }
+
 
         private void TabControlRmTab(object sender, EventArgs e) {
 
@@ -181,18 +190,20 @@ namespace CustomIDE {
 
         private void RunScriptClick(object sender, RoutedEventArgs e) {
             SaveFile();
-            options.CheckCOMPort();
-            if (options.settings["COM"] == "None") {
-                MessageBox.Show("Select a COM Port first", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
+
+            if (!options.IsCOMPortAvailable(Settings.Default.SelectedCOMPort)) {
+                Settings.Default.SelectedCOMPort = -1;
+                MessageBox.Show("Select a COM port first", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
-            } else if (options.settings["Python"] == "Not Installed") {
+            } else if (!Settings.Default.PythonInstalled) {
                 MessageBox.Show("Install Python first", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
-            } else if (options.settings["Ampy"] == "Not Installed") {
+            } else if (!Settings.Default.AmpyInstalled) {
                 MessageBox.Show("Install adafruit-ampy first", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            RunTerminalCommand("ampy", "--port " + options.settings["COM"] + " run " + current_file_path);
+
+            RunTerminalCommand("ampy", "--port COM" + Settings.Default.SelectedCOMPort + " run " + current_file_path);
         }
 
         private void StopScriptClick(object sender, RoutedEventArgs e) {
@@ -205,7 +216,8 @@ namespace CustomIDE {
         }
 
         private void WindowCloses(object sender, EventArgs e) {
-            options.UpdateSettings("Last File Path", current_file_path);
+            Settings.Default.LastOpenedFilePath = current_file_path;
+            Settings.Default.Save();
             options.Close();
             Application.Current.Shutdown();
         }
@@ -222,7 +234,7 @@ namespace CustomIDE {
 
         private void RunPythonScriptClick(object sender, RoutedEventArgs e) {
             SaveFile();
-            if (options.settings["Python"] == "Not Installed") {
+            if (!Settings.Default.PythonInstalled) {
                 MessageBox.Show("Install Python first", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
@@ -282,10 +294,6 @@ namespace CustomIDE {
             } else {
                 EdgeBorder.BorderThickness = new Thickness(3);
             }
-        }
-
-        private void AnalyzeClick(object sender, RoutedEventArgs e) {
-            Analyzer analyzer = new Analyzer();
         }
     }
 }

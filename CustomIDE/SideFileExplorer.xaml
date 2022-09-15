@@ -9,10 +9,22 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+
         <TextBlock x:Name="PathBox" FontSize="9" Text="Path" Foreground="White" Background="#FF292929" TextWrapping="Wrap"/>
-        <ListBox x:Name="FileExplorer" Grid.Row="1" Background="#FF292929" FontFamily="Cascadia Code" BorderBrush="#FF4C4C4C" BorderThickness="0,1,0,0" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto">
+        <Grid Grid.Row="1" Background="#FF292929">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width ="*"/>
+                <ColumnDefinition Width="*"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+            <Button Content="&#x1f4c1;" Click="AddDir_Click"/>
+            <Button Grid.Column="1" Content="&#x1f4c4;" Click="AddFile_Click"/>
+            <Button Grid.Column="2" Content="&#x21bb;" Click="RefreshClick"/>
+        </Grid>
+        <ListBox x:Name="FileExplorer" Grid.Row="2" Background="#FF292929" FontFamily="Cascadia Code" BorderThickness="0,0,0,0" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" RequestBringIntoView="RequestBringIntoView">
             <ListBox.Resources>
                 <sys:Double x:Key="{x:Static SystemParameters.HorizontalScrollBarHeightKey}">10</sys:Double>
                 <sys:Double x:Key="{x:Static SystemParameters.VerticalScrollBarWidthKey}">10</sys:Double>

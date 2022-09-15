@@ -25,21 +25,18 @@ namespace Styles {
         public static Brush SelectedColor;
 
         public DirectoryButton() : base() {
-
             Margin = new Thickness(0, 0, 0, 0);
             BorderThickness = new Thickness(0, 0, 0, 0);
             Padding = new Thickness(0, 0, 0, 0);
             FontSize = 10;
             FontFamily = new FontFamily("Cascadia Mono");
-
             HorizontalContentAlignment = HorizontalAlignment.Left;
             HorizontalAlignment = HorizontalAlignment.Stretch;
             BorderThickness = new Thickness(0, 0, 0, 0);
             Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255));
-            Background = new SolidColorBrush(Color.FromRgb(100, 100, 100));
-
+            Background = new SolidColorBrush(Color.FromRgb(80, 80, 80));
             BackgroundColor = Background;
-            SelectedColor = new SolidColorBrush(Color.FromRgb(150, 150, 150));
+            SelectedColor = new SolidColorBrush(Color.FromRgb(120,120,120));
         }
     }
 
@@ -234,6 +231,20 @@ namespace Styles {
             selectedButton = sugButtons[selectedButtonIdx];
             selectedButton.Background = selectedBrush;
             scrollViewer.ScrollToVerticalOffset((selectedButtonIdx - 6) * selectedButton.ActualHeight);
+        }
+    }
+
+
+    public class ComPortItem : ComboBoxItem {
+        public int Port;
+        public ComPortItem(string content, int port) : base() {
+            Content = content;
+            Port = port;
+        }
+
+        public ComPortItem() {
+            Port = -1;
+            Content = "None";
         }
     }
 }

@@ -1,16 +1,17 @@
 ﻿# TODO
 
 ## File Explorer
-- [ ] Add Refresh Button
-- [ ] Add Create File/Dir Button
+- [x] Add Refresh Button
+- [x] Add Create File/Dir Button
 - [ ] Make Files/Dirs Deletable
+- [ ] Make Files/Dirs Renamable
 
 ## Coder Box
-- [ ] Fix Highlighting
+- [x] Fix Highlighting
 - [ ] Add Icons to Suggestions
-- [ ] Fix typingWord being "" when in word
+- [x] Fix typingWord being "" when in word
 - [ ] Fix use of Strg Z
- 
+- [ ] Add more Text suggestions
 
 ## Main Window
 

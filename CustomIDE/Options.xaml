@@ -6,17 +6,18 @@
         xmlns:local="clr-namespace:CustomIDE"
         xmlns:System="clr-namespace:System;assembly=mscorlib" x:Class="CustomIDE.Options"
         mc:Ignorable="d"
-        Title="Options" Height="450" Width="800" Background="#FF292929">
+        Title="Options" Height="450" Width="800" Background="#FF292929" Closing="Window_Closing">
     <Grid>
         <Label Content="Com Port: " HorizontalAlignment="Left" Margin="31,36,0,0" VerticalAlignment="Top" Foreground="White"/>
-        <ComboBox x:Name="ComPortBox" HorizontalAlignment="Left" Margin="119,38,0,0" VerticalAlignment="Top" Width="120" DropDownOpened="OpenPortBox" SelectedIndex="0" DropDownClosed="ClosePortBox">
-            <System:String>None</System:String>
+        <ComboBox xmlns:agent="clr-namespace:Styles" x:Name="ComPortBox" HorizontalAlignment="Left" Margin="119,38,0,0" VerticalAlignment="Top" Width="85" DropDownOpened="OpenPortBox" SelectedIndex="0" DropDownClosed="ClosePortBox">
+            <agent:ComPortItem/>
         </ComboBox>
         <Button Content="Apply" Margin="0,0,10,10" Click="ApplyClick" Height="20" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="35"/>
         <Label x:Name="AmpyStatus" Content="Adafruit Ampy: Not Installed" HorizontalAlignment="Left" Margin="19,140,0,0" VerticalAlignment="Top" Foreground="White"/>
         <Button x:Name="InstallAmpyBut" Content="Install" HorizontalAlignment="Left" Margin="204,143,0,0" VerticalAlignment="Top" Click="InstallAmpyClick"/>
         <Label x:Name="PythonStatus" Content="Python: Not Installed" HorizontalAlignment="Left" Margin="19,109,0,0" VerticalAlignment="Top" Foreground="White"/>
         <Button x:Name="InstallPythonBut" Content="Install" HorizontalAlignment="Left" Margin="204,112,0,0" VerticalAlignment="Top" Click="InstallPythonClick"/>
+        <Button x:Name="InstallPythonBut_Copy" Content="&#x21bb;" HorizontalAlignment="Left" Margin="204,38,0,0" VerticalAlignment="Top" Click="RefreshClick" Height="22" Width="35"/>
 
     </Grid>
 </Window>

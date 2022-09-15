@@ -1,5 +1,4 @@
 ﻿using Colors;
-using Newtonsoft.Json.Linq;
 using Styles;
 using System;
 using System.Collections.Generic;
@@ -23,17 +22,18 @@ using System.Windows.Threading;
 
 namespace CustomIDE {
     public partial class BetterTextBox : UserControl {
+        public delegate void HotkeyHandler(object sender, HotkeyEventArgs e);
+        public event HotkeyHandler HotkeyPressed;
 
-        Dictionary<Tuple<int, int>, LabelText> labelTextMap = new Dictionary<Tuple<int, int>, LabelText>();
-        SuggestionBox suggestionBox = new SuggestionBox();
-        string typingWord = "";
-        readonly Dictionary<string, string> PatternMap = new Dictionary<string, string> {
+        private SuggestionBox suggestionBox = new SuggestionBox();
+        private string typingWord = "";
+        private Dictionary<string, string> PatternMap = new Dictionary<string, string> {
             ["Words"] = @"[^\W\d](\w|[-']{1,2}(?=\w))*",
             ["Ints"] = @"\b\d+\b",
             ["Floats"] = @"\d+\.\d+",
             ["Special Chars"] = @"[^a-zA-Z\d\s]"
         };
-        bool IgnoreWarning = false;
+        private bool IgnoreWarning = false;
 
         public BetterTextBox() {
             InitializeComponent();
@@ -157,7 +157,6 @@ namespace CustomIDE {
 
         private void TextChange(object sender, TextChangedEventArgs e) {
             TextGrid.Children.Clear();
-            labelTextMap.Clear();
             string Text = GetText();
             string[] lines = Text.Split('\n');
 
@@ -209,54 +208,88 @@ namespace CustomIDE {
 
 
         private void TextBox_KeyDown(object sender, KeyEventArgs e) {
-            if (e.Key == Key.Up) {
-                if (suggestionBox.isOpen && suggestionBox.selectedButton != null) {
-                    suggestionBox.GoUp();
-                    e.Handled = true;
-                }
-            } else if (e.Key == Key.Down) {
-                if (suggestionBox.isOpen) {
-                    suggestionBox.GoDown();
-                    e.Handled = true;
-                }
-            } else if (e.Key == Key.Tab) {
-                if (suggestionBox.isOpen) {
-                    string toInsert;
-                    if (suggestionBox.sugButtons.Count == 1) {
-                        toInsert = (string) suggestionBox.sugButtons[0].Content;
-                        toInsert = toInsert.Substring(typingWord.Length);
-                        InsertAtCaret(toInsert);
-                    } else if (suggestionBox.selectedButton != null) {
-                        InsertSelectedSuggestionButton();
-                    }
-                } else {
-                    InsertAtCaret("    ");
-                }
 
-                e.Handled = true;
-            } else if (e.Key == Key.Return) {
-                if (suggestionBox.isOpen && suggestionBox.selectedButton != null) {
-                    InsertSelectedSuggestionButton();
+            switch (e.Key) {
+                case Key.Up:
+                    if (suggestionBox.isOpen && suggestionBox.selectedButton != null) {
+                        suggestionBox.GoUp();
+                        e.Handled = true;
+                    }
+                    break;
+                case Key.Down:
+                    if (suggestionBox.isOpen) {
+                        suggestionBox.GoDown();
+                        e.Handled = true;
+                    }
+                    break;
+                case Key.Tab:
+                    if (suggestionBox.isOpen) {
+                        string toInsert;
+                        if (suggestionBox.sugButtons.Count == 1) {
+                            toInsert = (string) suggestionBox.sugButtons[0].Content;
+                            toInsert = toInsert.Substring(typingWord.Length);
+                            InsertAtCaret(toInsert);
+                        } else if (suggestionBox.selectedButton != null) {
+                            InsertSelectedSuggestionButton();
+                        }
+                    } else {
+                        InsertAtCaret("    ");
+                    }
+
                     e.Handled = true;
-                }
-            } else if (e.Key == Key.D8) {
-                if (PressesShift()) {
-                    InsertAtCaret("()");
-                    e.Handled = true;
-                } else if (Keyboard.IsKeyDown(Key.RightAlt)) {
-                    InsertAtCaret("[]");
-                    e.Handled = true;
-                }
-            } else if (e.Key == Key.D7 && Keyboard.IsKeyDown(Key.RightAlt)) {
-                InsertAtCaret("{}");
-                e.Handled = true;
+                    break;
+                case Key.Return:
+                    if (suggestionBox.isOpen && suggestionBox.selectedButton != null) {
+                        InsertSelectedSuggestionButton();
+                        e.Handled = true;
+                    }
+                    break;
+                case Key.D8:
+                    if (PressesShift()) {
+                        InsertAtCaret("()");
+                        e.Handled = true;
+                    } else if (Keyboard.IsKeyDown(Key.RightAlt)) {
+                        InsertAtCaret("[]");
+                        e.Handled = true;
+                    }
+                    break;
+                case Key.D7:
+                    if (Keyboard.IsKeyDown(Key.RightAlt)) {
+                        InsertAtCaret("{}");
+                        e.Handled = true;
+                    }
+                    break;
+
+                default:
+                    if (PressesStrg() || PressesShift()) {
+                        HotkeyPressed(this, new HotkeyEventArgs(GetAllPressedKeys()));
+                    }
+                    break;
             }
         }
+
+        public static Key[] GetAllPressedKeys() {
+            var keys = new List<Key>();
+            foreach(Key x in Enum.GetValues(typeof(Key)).Cast<Key>()) {
+                try {
+                    if (Keyboard.IsKeyDown(x))
+                        keys.Add(x);
+                } catch (System.ComponentModel.InvalidEnumArgumentException) {
+                    continue;
+                }
+            }
+            return keys.ToArray();
+        }
+
         public static bool PressesShift() {
             return Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
         }
 
-        private void PreviewTextInput(object sender, TextCompositionEventArgs e) {
+        public static bool PressesStrg() {
+            return Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.LeftCtrl);
+        }
+
+        private void Box_PreviewTextInput(object sender, TextCompositionEventArgs e) {
             if (IgnoreWarning || e.Text.Length != 1)
                 return;
 
@@ -291,12 +324,17 @@ namespace CustomIDE {
             FontSize = 14;
             Panel.SetZIndex(this, 1);
             IsHitTestVisible = false;
-            //TextOptions.SetTextFormattingMode(this, TextFormattingMode.Display);
-            //TextOptions.SetTextRenderingMode(this, TextRenderingMode.ClearType);
         }
 
         public void SetColor(Brush color) {
             Foreground = color;
+        }
+    }
+
+    public class HotkeyEventArgs : EventArgs {
+        public Key[] PressedKeys { get; private set; }
+        public HotkeyEventArgs(Key[] keys) {
+            PressedKeys = keys;
         }
     }
 }
