@@ -9,7 +9,7 @@ using System.Linq;
 using System.Windows.Controls;
 using System.Windows.Media;
 using Microsoft.Win32;
-using CustomIDE.Properties;
+using NoodleSoup.Properties;
 
 namespace CustomIDE {
 
@@ -37,13 +37,14 @@ namespace CustomIDE {
 
             current_file_path = Path.GetFullPath(Settings.Default.LastOpenedFilePath);
 
+            MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
+
             FileExplorer.OpenDir(Directory.GetParent(current_file_path).FullName);
 
             TabControler.OnUserChangesSelection += TabControlUserChange;
             TabControler.UserWillRemoveTab += TabControlRmTab;
             FileExplorer.OnUserChangesSelection += FileSelectionChange;
             GoodTextBox.HotkeyPressed += GoodTextBox_HotkeyPressed;
-
 
             OpenFile(current_file_path);
         }
@@ -63,9 +64,8 @@ namespace CustomIDE {
             if (SaveFile())
                 TabControler.RemoveTab(tab);
 
-            if (TabControler.MainGrid.Children.Count == 0) {
+            if (TabControler.MainGrid.Children.Count == 0) 
                 OpenFile(tempFilePath);
-            }
         }
 
         private void TabControlUserChange(object sender, EventArgs e) {
@@ -242,10 +242,11 @@ namespace CustomIDE {
         }
 
         private void MaximiseClick(object sender, RoutedEventArgs e) {
-            if (WindowState == WindowState.Normal)
+            if (WindowState == WindowState.Normal) {
                 WindowState = WindowState.Maximized;
-            else
+            } else {
                 WindowState = WindowState.Normal;
+            }
         }
 
         private void Window_LeftMouseDowm(object sender, MouseButtonEventArgs e) {
@@ -289,11 +290,18 @@ namespace CustomIDE {
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e) {
-            if (WindowState == WindowState.Maximized) {
+            if (WindowState == WindowState.Maximized)
                 EdgeBorder.BorderThickness = new Thickness(8);
-            } else {
+            else
                 EdgeBorder.BorderThickness = new Thickness(3);
-            }
+
+        }
+
+        private void Window_StateChange(object sender, EventArgs e) {
+            if (WindowState == WindowState.Normal)
+                MaximizeButton.Content = "🗖";
+            else
+                MaximizeButton.Content = "🗗";
         }
     }
 }

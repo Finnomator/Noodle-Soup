@@ -12,6 +12,7 @@
 - [x] Fix typingWord being "" when in word
 - [ ] Fix use of Strg Z
 - [ ] Add more Text suggestions
+- [ ] Fix missing words
 
 ## Main Window
 

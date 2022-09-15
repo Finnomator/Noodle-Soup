@@ -180,7 +180,7 @@ namespace CustomIDE {
                     TextGrid.Children.Add(new LabelText(line.TrimStart(), i, line.Length - line.TrimStart().Length, KeyWords.commentsColor));
                     continue;
                 }
-
+                
                 foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Words"])) {
                     string text = word.Item1;
                     int index = word.Item2;
@@ -334,7 +334,6 @@ namespace CustomIDE {
             Margin = new Thickness(Col * 8 + 3, Row * 16 + 1, 0, 0);
             Text = content;
             FontSize = 14;
-            Panel.SetZIndex(this, 1);
             IsHitTestVisible = false;
         }
 

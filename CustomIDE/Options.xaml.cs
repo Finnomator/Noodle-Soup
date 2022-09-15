@@ -1,4 +1,4 @@
-﻿using CustomIDE.Properties;
+﻿using NoodleSoup.Properties;
 using Styles;
 using System;
 using System.Collections.Generic;

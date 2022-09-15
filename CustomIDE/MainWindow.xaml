@@ -9,7 +9,7 @@
         SizeChanged="Window_SizeChanged"
         WindowState="Maximized"
         WindowStartupLocation="CenterScreen"
-        Title="Custom IDE" Height="650" Width="1080" Closed="WindowCloses" WindowStyle="None" AllowsTransparency="True" Background="{x:Null}" Foreground="{x:Null}" MouseLeftButtonDown="Window_LeftMouseDowm">
+        Title="Custom IDE" Height="650" Width="1080" Closed="WindowCloses" WindowStyle="None" AllowsTransparency="True" Background="{x:Null}" Foreground="{x:Null}" MouseLeftButtonDown="Window_LeftMouseDowm" StateChanged="Window_StateChange">
 
     <Window.Resources>
 
@@ -107,16 +107,10 @@
                 <local:BetterTextBox x:Name="GoodTextBox" Grid.Row="1" Panel.ZIndex="1"/>
             </Grid>
             <Grid x:Name="TitleBar" Grid.ColumnSpan="3" Background="#FF444444" Height="23" VerticalAlignment="Top">
-                <Button Template="{StaticResource WindowControlTemplate}" Click="CloseClick" HorizontalAlignment="Right" Panel.ZIndex="1">
-                    <Image Source="/Close2.png" Width="10"/>
-                </Button>
-                <Button Template="{StaticResource WindowControlTemplate}" Margin="0,0,74,0" Click="MinimizeClick" HorizontalAlignment="Right">
-                    <Image Source="/Minimize.png" Width="10"/>
-                </Button>
-                <Button Template="{StaticResource WindowControlTemplate}" Margin="0,0,37,0" Click="MaximiseClick" HorizontalAlignment="Right">
-                    <Image Source="/Maximize.png" Width="10"/>
-                </Button>
-                <Label Content="Custom IDE" HorizontalAlignment="Left" VerticalAlignment="Center" Height="23" Foreground="White" VerticalContentAlignment="Center" Padding="5,3,5,5"/>
+                <Button Template="{StaticResource WindowControlTemplate}" Click="CloseClick" HorizontalAlignment="Right" Panel.ZIndex="1" Content="&#x1f5d9;"/>
+                <Button Template="{StaticResource WindowControlTemplate}" Margin="0,0,74,0" Click="MinimizeClick" HorizontalAlignment="Right" Content="&#x1f5d5;"/>
+                <Button Template="{StaticResource WindowControlTemplate}" Margin="0,0,37,0" Click="MaximiseClick" HorizontalAlignment="Right" Content="&#x1f5d7;" x:Name="MaximizeButton"/>
+                <Label Content="Noodle Soup" HorizontalAlignment="Left" VerticalAlignment="Center" Height="23" Foreground="White" VerticalContentAlignment="Center" Padding="5,3,5,5"/>
             </Grid>
             <Grid x:Name="ToolBar" Grid.ColumnSpan="3" Margin="0,23,0,0" Background="#FF545454">
                 <Button Content="Open File" Template="{StaticResource CleanButton}" Click="OpenFileClick" Margin="0,19,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
