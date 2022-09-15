@@ -9,7 +9,7 @@
     <ScrollViewer>
 
         <Grid x:Name="MainGrid" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" >
-            <TextBox x:Name="MainTextBox" Background="#FF484848" Foreground="{x:Null}" FontFamily="Cascadia Mono" TextChanged="TextChange" AcceptsTab="True" AcceptsReturn="True" FontSize="14" PreviewKeyDown="TextBox_KeyDown"/>
+            <TextBox x:Name="MainTextBox" Background="#FF484848" Foreground="{x:Null}" FontFamily="Cascadia Mono" TextChanged="TextChange" AcceptsTab="True" AcceptsReturn="True" FontSize="14" PreviewKeyDown="TextBox_KeyDown" PreviewTextInput="PreviewTextInput"/>
             <Grid x:Name="TextGrid"/>
         </Grid>
     </ScrollViewer>

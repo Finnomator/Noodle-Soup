@@ -1,4 +1,5 @@
 ﻿using Colors;
+using Newtonsoft.Json.Linq;
 using Styles;
 using System;
 using System.Collections.Generic;
@@ -32,6 +33,7 @@ namespace CustomIDE {
             ["Floats"] = @"\d+\.\d+",
             ["Special Chars"] = @"[^a-zA-Z\d\s]"
         };
+        bool IgnoreWarning = false;
 
         public BetterTextBox() {
             InitializeComponent();
@@ -252,6 +254,23 @@ namespace CustomIDE {
         }
         public static bool PressesShift() {
             return Keyboard.IsKeyDown(Key.LeftShift) || Keyboard.IsKeyDown(Key.RightShift);
+        }
+
+        private void PreviewTextInput(object sender, TextCompositionEventArgs e) {
+            if (IgnoreWarning || e.Text.Length != 1)
+                return;
+
+            int asciiByte = Encoding.ASCII.GetBytes(e.Text[0].ToString())[0];
+
+            if (asciiByte < 256)
+                return;
+
+            MessageBoxResult messageBoxResult = MessageBox.Show($"The character ('{e.Text}') you typed may not be supported by the IDE/Font. Insert Anyway?", "Error", MessageBoxButton.YesNo, MessageBoxImage.Warning);
+            if (messageBoxResult == MessageBoxResult.No) {
+                e.Handled = true;
+            } else {
+                IgnoreWarning = true;
+            }
         }
     }
 
