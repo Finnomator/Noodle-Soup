@@ -38,7 +38,9 @@ namespace CustomIDE {
         public BetterTextBox() {
             InitializeComponent();
             suggestionBox.SuggestionClick += SuggestionButtonClick;
+            Grid.SetColumn(suggestionBox, 1);
             MainGrid.Children.Add(suggestionBox);
+            LinesBox.Tag = 1;
         }
 
         public string GetText() {
@@ -159,6 +161,16 @@ namespace CustomIDE {
             TextGrid.Children.Clear();
             string Text = GetText();
             string[] lines = Text.Split('\n');
+
+            int linesBoxDelta = lines.Length - (int) LinesBox.Tag;
+            LinesBox.Tag = lines.Length;
+
+            if (linesBoxDelta != 0) {
+                LinesBox.Text = "1\n";
+                for (int i = 2; i < lines.Length + 1; i++) {
+                    LinesBox.Text += i + "\n";
+                }
+            }
 
             for (int i = 0; i < lines.Length; i++) {
                 string line = lines[i].Replace("\r", "");
@@ -318,7 +330,7 @@ namespace CustomIDE {
             Foreground = color;
             Col = col;
             Row = row;
-            FontFamily = new FontFamily("Cascadia Mono");
+            FontFamily = new FontFamily("Cascadia Code");
             Margin = new Thickness(Col * 8 + 3, Row * 16 + 1, 0, 0);
             Text = content;
             FontSize = 14;

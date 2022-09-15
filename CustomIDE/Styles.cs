@@ -130,6 +130,7 @@ namespace Styles {
 
             scrollViewer.Content = mainGrid;
             Child = scrollViewer;
+
             Close();
         }
 
