@@ -1,5 +1,6 @@
 ﻿using Colors;
 using CustomIDE;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -36,7 +37,7 @@ namespace Styles {
             Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255));
             Background = new SolidColorBrush(Color.FromRgb(80, 80, 80));
             BackgroundColor = Background;
-            SelectedColor = new SolidColorBrush(Color.FromRgb(120,120,120));
+            SelectedColor = new SolidColorBrush(Color.FromRgb(120, 120, 120));
         }
     }
 
@@ -48,17 +49,12 @@ namespace Styles {
         public TabItemButton(string title) : base() {
 
             HorizontalAlignment = HorizontalAlignment.Left;
-
-            ColumnDefinitions.Add(new ColumnDefinition {
-                Width = GridLength.Auto,
-            });
-            ColumnDefinitions.Add(new ColumnDefinition {
-                Width = GridLength.Auto
-            });
+            ColumnDefinitions.Add(new ColumnDefinition());
+            ColumnDefinitions.Add(new ColumnDefinition());
 
             selectButton = new Button {
                 Content = title,
-                Background = null,
+                Background = Brushes.Transparent,
                 Tag = this,
                 Foreground = Brushes.White,
                 Padding = new Thickness(1, 0, 3, 0),
@@ -67,10 +63,10 @@ namespace Styles {
             };
 
             closeButton = new Button {
-                Content = "X",
+                Content = "🗙",
                 Foreground = Brushes.White,
-                BorderThickness = new Thickness(0, 0, 0, 0),
-                FontSize = 10,
+                BorderThickness = new Thickness(0, 2, 0, 2),
+                FontSize = 9,
                 Background = null,
                 Tag = this,
                 HorizontalContentAlignment = HorizontalAlignment.Center,
@@ -190,14 +186,14 @@ namespace Styles {
             SuggestionClick(sender, e);
         }
 
-        public void Update(string wordStart, int x, int y) {
+        public void Update(string wordStart, int x, int y, bool showAll = false) {
 
             if (wordStart == typingWord)
                 return;
 
             Margin = new Thickness(x, y, 0, 0);
 
-            if (wordStart == "")
+            if (wordStart == "" && !showAll)
                 Close();
             else
                 Open(wordStart);
@@ -247,5 +243,83 @@ namespace Styles {
             Port = -1;
             Content = "None";
         }
+    }
+
+    public class FileContextMenu : Grid {
+
+        public delegate void Click(object sender, FileContextEventArgs e);
+        public event Click OnClick;
+
+        private ContextButton[] contextButtons;
+
+        public class ContextButton : Button {
+
+            public FileOption Action;
+
+            public ContextButton(FileOption fileOption) : base() {
+
+                Action = fileOption;
+
+                HorizontalAlignment = HorizontalAlignment.Stretch;
+                VerticalAlignment = VerticalAlignment.Stretch;
+                BorderThickness = new Thickness(0);
+                Padding = new Thickness(2, 0, 2, 0);
+
+                Background = Brushes.DarkGray;
+                Foreground = Brushes.White;
+
+                Content = fileOption.ToString();
+                FontSize = 10;
+                HorizontalContentAlignment = HorizontalAlignment.Left;
+            }
+        }
+
+        public class FileContextEventArgs : EventArgs {
+            public FileOption action { get; private set; }
+
+            public FileContextEventArgs(FileOption action) {
+                this.action = action;
+            }
+        }
+
+        public FileContextMenu() : base() {
+
+            HorizontalAlignment = HorizontalAlignment.Left;
+            VerticalAlignment = VerticalAlignment.Top;
+
+            ContextButton renameButton = new ContextButton(FileOption.Rename);
+            ContextButton cutButton = new ContextButton(FileOption.Cut);
+            ContextButton copyButton = new ContextButton(FileOption.Copy);
+            ContextButton pasteButton = new ContextButton(FileOption.Paste);
+            ContextButton deleteButton = new ContextButton(FileOption.Delete);
+            contextButtons = new ContextButton[] { renameButton, cutButton, copyButton, pasteButton, deleteButton };
+
+            renameButton.Click += Button_Click;
+            cutButton.Click += Button_Click;
+            copyButton.Click += Button_Click;
+            pasteButton.Click += Button_Click;
+            deleteButton.Click += Button_Click;
+
+            SetZIndex(this, 1);
+
+            for (int i = 0; i < contextButtons.Length; i++) {
+                ContextButton contextButton = contextButtons[i];
+                RowDefinitions.Add(new RowDefinition());
+                SetRow(contextButton, i);
+                Children.Add(contextButton);
+            }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e) {
+            OnClick(sender, new FileContextEventArgs(((ContextButton) sender).Action));
+        }
+    }
+
+    public enum FileOption {
+        Rename,
+        Cut,
+        Copy,
+        Paste,
+        Delete,
     }
 }

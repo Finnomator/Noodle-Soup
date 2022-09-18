@@ -3,7 +3,7 @@
 ## File Explorer
 - [x] Add Refresh Button
 - [x] Add Create File/Dir Button
-- [ ] Make Files/Dirs Deletable
+- [x] Make Files/Dirs Deletable
 - [ ] Make Files/Dirs Renamable
 
 ## Coder Box

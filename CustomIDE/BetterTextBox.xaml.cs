@@ -41,6 +41,43 @@ namespace CustomIDE {
             Grid.SetColumn(suggestionBox, 1);
             MainGrid.Children.Add(suggestionBox);
             LinesBox.Tag = 1;
+            HotkeyPressed += BetterTextBox_HotkeyPressed;
+        }
+
+        private void BetterTextBox_HotkeyPressed(object sender, HotkeyEventArgs e) {
+            if (e.PressedKeys.Length == 2) {
+                bool Ctrl = false;
+                Key other_key = Key.None;
+
+                if (e.PressedKeys.Contains(Key.LeftCtrl)) {
+                    Ctrl = true;
+                    other_key = e.PressedKeys[e.PressedKeys[0] == Key.LeftCtrl ? 1: 0];
+                } else if (e.PressedKeys.Contains(Key.RightCtrl)) {
+                    Ctrl = true;
+                    other_key = e.PressedKeys[e.PressedKeys[0] == Key.RightCtrl ? 1 : 0];
+                }
+
+
+                if (Ctrl && other_key == Key.Space)
+                    suggestionBox.Update(typingWord, GetColOfIndex(MainTextBox.CaretIndex - 1) * 8 + 8, GetRowOfIndex(MainTextBox.CaretIndex - 1) * 16 + 16, true);
+                else if (Ctrl && other_key == Key.A)
+                    MainTextBox.SelectAll();
+                else if (Ctrl && other_key == Key.Back) {
+                    CutOutString(MainTextBox.CaretIndex - typingWord.Length, MainTextBox.CaretIndex);
+                    typingWord = "";
+                } else if (Ctrl && other_key == Key.C) {
+                    if (MainTextBox.SelectionLength > 0) 
+                        Clipboard.SetText(MainTextBox.SelectedText);
+                } else if (Ctrl && other_key == Key.X) {
+                    string selected_text = MainTextBox.SelectedText;
+                    if (selected_text != "") {
+                        Clipboard.SetText(selected_text);
+                        CutOutString(MainTextBox.SelectionStart, MainTextBox.SelectionStart + MainTextBox.SelectionLength);
+                    }
+                } else if (Ctrl && other_key == Key.V) {
+                    InsertAtCaret(Clipboard.GetText());
+                }
+            }
         }
 
         public string GetText() {
@@ -50,13 +87,27 @@ namespace CustomIDE {
         public void SetText(string text) {
             MainTextBox.Text = text;
         }
-        void InsertText(string text, int index) {
-            MainTextBox.Text = MainTextBox.Text.Insert(index, text);
+
+        public void CutOutString(int start, int end) {
+            string text = MainTextBox.Text;
+            int oldidx = MainTextBox.CaretIndex;
+            MainTextBox.Text = text.Substring(0, start) + text.Substring(end);
+            MainTextBox.CaretIndex = oldidx;
         }
 
-        void InsertAtCaret(string text) {
+        public void InsertText(string text, int index) {
+            int old_caret_pos = MainTextBox.CaretIndex;
+            MainTextBox.Text = MainTextBox.Text.Insert(index, text);
+            MainTextBox.CaretIndex = old_caret_pos;
+        }
+
+        public void InsertAtCaret(string text) {
+            InsertAtCaret(text, text.Length);
+        }
+
+        public void InsertAtCaret(string text, int caret_offset) {
             InsertText(text, MainTextBox.CaretIndex);
-            MainTextBox.CaretIndex += text.Length;
+            MainTextBox.CaretIndex += caret_offset;
         }
 
         string GetWordAtIndex(int index) {
@@ -180,7 +231,7 @@ namespace CustomIDE {
                     TextGrid.Children.Add(new LabelText(line.TrimStart(), i, line.Length - line.TrimStart().Length, KeyWords.commentsColor));
                     continue;
                 }
-                
+
                 foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Words"])) {
                     string text = word.Item1;
                     int index = word.Item2;
@@ -258,23 +309,24 @@ namespace CustomIDE {
                     break;
                 case Key.D8:
                     if (PressesShift()) {
-                        InsertAtCaret("()");
+                        InsertAtCaret("()", 1);
                         e.Handled = true;
                     } else if (Keyboard.IsKeyDown(Key.RightAlt)) {
-                        InsertAtCaret("[]");
+                        InsertAtCaret("[]", 1);
                         e.Handled = true;
                     }
                     break;
                 case Key.D7:
                     if (Keyboard.IsKeyDown(Key.RightAlt)) {
-                        InsertAtCaret("{}");
+                        InsertAtCaret("{}", 1);
                         e.Handled = true;
                     }
                     break;
 
                 default:
-                    if (PressesStrg() || PressesShift()) {
+                    if (PressesStrg()) {
                         HotkeyPressed(this, new HotkeyEventArgs(GetAllPressedKeys()));
+                        e.Handled = true;
                     }
                     break;
             }
@@ -282,7 +334,7 @@ namespace CustomIDE {
 
         public static Key[] GetAllPressedKeys() {
             var keys = new List<Key>();
-            foreach(Key x in Enum.GetValues(typeof(Key)).Cast<Key>()) {
+            foreach (Key x in Enum.GetValues(typeof(Key)).Cast<Key>()) {
                 try {
                     if (Keyboard.IsKeyDown(x))
                         keys.Add(x);
@@ -317,8 +369,12 @@ namespace CustomIDE {
                 IgnoreWarning = true;
             }
         }
-    }
 
+        private void MainTextBox_LostFocus(object sender, RoutedEventArgs e) {
+            suggestionBox.Close();
+        }
+
+    }
 
 
     public class LabelText : TextBlock {
