@@ -16,7 +16,7 @@
             </Grid.ColumnDefinitions>
 
             <TextBlock x:Name="LinesBox" Text="1" FontFamily="Cascadia Code" Background="#FF2B2B2B" Foreground="#FF5D5D5D" FontSize="14"/>
-            <TextBox x:Name="MainTextBox" Grid.Column="1" Background="#FF2B2B2B" Foreground="{x:Null}" FontFamily="Cascadia Code" TextChanged="TextChange" AcceptsTab="True" AcceptsReturn="True" FontSize="14" PreviewKeyDown="TextBox_KeyDown" PreviewTextInput="Box_PreviewTextInput" BorderThickness="0,0,0,0" Padding="1,1,1,1" LostFocus="MainTextBox_LostFocus"/>
+            <TextBox x:Name="MainTextBox" Grid.Column="1" Background="#FF2B2B2B" FontFamily="Cascadia Code" TextChanged="TextChange" AcceptsTab="True" AcceptsReturn="True" FontSize="14" PreviewKeyDown="TextBox_KeyDown" PreviewTextInput="Box_PreviewTextInput" BorderThickness="0,0,0,0" Padding="1,1,1,1" LostFocus="MainTextBox_LostFocus" Foreground="Red"/>
             <Grid x:Name="TextGrid" Grid.Column="1"/>
         </Grid>
     </ScrollViewer>

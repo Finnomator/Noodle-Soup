@@ -28,7 +28,7 @@
     <MapFileExtensions>true</MapFileExtensions>
     <TargetCulture>en</TargetCulture>
     <PublisherName>Finn Drünert</PublisherName>
-    <ApplicationRevision>16</ApplicationRevision>
+    <ApplicationRevision>17</ApplicationRevision>
     <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
     <UseApplicationTrust>false</UseApplicationTrust>
     <CreateDesktopShortcut>true</CreateDesktopShortcut>

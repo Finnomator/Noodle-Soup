@@ -1,12 +1,15 @@
 ﻿using Colors;
+using NoodleSoup;
 using Styles;
 using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
@@ -34,6 +37,7 @@ namespace CustomIDE {
             ["Special Chars"] = @"[^a-zA-Z\d\s]"
         };
         private bool IgnoreWarning = false;
+        private bool BeginnIndexing = false;
 
         public BetterTextBox() {
             InitializeComponent();
@@ -42,6 +46,9 @@ namespace CustomIDE {
             MainGrid.Children.Add(suggestionBox);
             LinesBox.Tag = 1;
             HotkeyPressed += BetterTextBox_HotkeyPressed;
+            Thread Indexer = new Thread(new ThreadStart(Indexing));
+            Indexer.Start();
+            Indexer.IsBackground = true;
         }
 
         private void BetterTextBox_HotkeyPressed(object sender, HotkeyEventArgs e) {
@@ -51,7 +58,7 @@ namespace CustomIDE {
 
                 if (e.PressedKeys.Contains(Key.LeftCtrl)) {
                     Ctrl = true;
-                    other_key = e.PressedKeys[e.PressedKeys[0] == Key.LeftCtrl ? 1: 0];
+                    other_key = e.PressedKeys[e.PressedKeys[0] == Key.LeftCtrl ? 1 : 0];
                 } else if (e.PressedKeys.Contains(Key.RightCtrl)) {
                     Ctrl = true;
                     other_key = e.PressedKeys[e.PressedKeys[0] == Key.RightCtrl ? 1 : 0];
@@ -66,7 +73,7 @@ namespace CustomIDE {
                     CutOutString(MainTextBox.CaretIndex - typingWord.Length, MainTextBox.CaretIndex);
                     typingWord = "";
                 } else if (Ctrl && other_key == Key.C) {
-                    if (MainTextBox.SelectionLength > 0) 
+                    if (MainTextBox.SelectionLength > 0)
                         Clipboard.SetText(MainTextBox.SelectedText);
                 } else if (Ctrl && other_key == Key.X) {
                     string selected_text = MainTextBox.SelectedText;
@@ -75,6 +82,8 @@ namespace CustomIDE {
                         CutOutString(MainTextBox.SelectionStart, MainTextBox.SelectionStart + MainTextBox.SelectionLength);
                     }
                 } else if (Ctrl && other_key == Key.V) {
+                    if (MainTextBox.SelectionLength > 0)
+                        CutOutString(MainTextBox.SelectionStart, MainTextBox.SelectionStart + MainTextBox.SelectionLength);
                     InsertAtCaret(Clipboard.GetText());
                 }
             }
@@ -207,66 +216,69 @@ namespace CustomIDE {
             InsertAtCaret(toInsert);
         }
 
+        private void Indexing() {
+            while (true) {
+
+                while (!BeginnIndexing)
+                    Thread.Sleep(10);
+
+                Application.Current.Dispatcher.Invoke(new Action(() => {
+
+                    TextGrid.Children.Clear();
+                    string Text = GetText();
+                    string[] lines = Text.Split('\n');
+
+                    int linesBoxDelta = lines.Length - (int) LinesBox.Tag;
+                    LinesBox.Tag = lines.Length;
+
+                    if (linesBoxDelta != 0) {
+                        int last_length = lines.Length.ToString().Length;
+                        LinesBox.Text = new string('0', last_length - 1) + "1\n";
+                        for (int i = 2; i < lines.Length + 1; i++) {
+                            LinesBox.Text += new string('0', last_length - i.ToString().Length) + i + "\n";
+                        }
+                    }
+
+                    for (int i = 0; i < lines.Length; i++) {
+                        string line = lines[i].Replace("\r", "");
+                        string trimedLine = line.Trim();
+
+                        if (trimedLine.StartsWith("#")) {
+                            TextGrid.Children.Add(new LabelText(line.TrimStart(), i, line.Length - line.TrimStart().Length, KeyWords.commentsColor));
+                            continue;
+                        }
+
+                        foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Words"])) {
+                            TextGrid.Children.Add(new LabelText(word.Item1, i, word.Item2, ColorDict.Get(word.Item1)));
+                        }
+
+                        foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Special Chars"])) {
+                            TextGrid.Children.Add(new LabelText(word.Item1, i, word.Item2, ColorDict.Get(word.Item1)));
+                        }
+
+                        foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Ints"])) {
+                            TextGrid.Children.Add(new LabelText(word.Item1, i, word.Item2, ColorDict.Get(word.Item1)));
+                        }
+
+                        foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Floats"])) {
+                            TextGrid.Children.Add(new LabelText(word.Item1, i, word.Item2, ColorDict.Get(word.Item1)));
+                        }
+                    }
+
+                    typingWord = GetWordAtIndex(MainTextBox.CaretIndex);
+
+                    if (GetLine(GetRowOfIndex(MainTextBox.CaretIndex - 1)).TrimStart().StartsWith("#"))
+                        typingWord = "";
+
+                    suggestionBox.Update(typingWord, GetColOfIndex(MainTextBox.CaretIndex - 1) * 8 + 8, GetRowOfIndex(MainTextBox.CaretIndex - 1) * 16 + 16);
+
+                    BeginnIndexing = false;
+                }));
+            }
+        }
 
         private void TextChange(object sender, TextChangedEventArgs e) {
-            TextGrid.Children.Clear();
-            string Text = GetText();
-            string[] lines = Text.Split('\n');
-
-            int linesBoxDelta = lines.Length - (int) LinesBox.Tag;
-            LinesBox.Tag = lines.Length;
-
-            if (linesBoxDelta != 0) {
-                LinesBox.Text = "1\n";
-                for (int i = 2; i < lines.Length + 1; i++) {
-                    LinesBox.Text += i + "\n";
-                }
-            }
-
-            for (int i = 0; i < lines.Length; i++) {
-                string line = lines[i].Replace("\r", "");
-                string trimedLine = line.Trim();
-
-                if (trimedLine.StartsWith("#")) {
-                    TextGrid.Children.Add(new LabelText(line.TrimStart(), i, line.Length - line.TrimStart().Length, KeyWords.commentsColor));
-                    continue;
-                }
-
-                foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Words"])) {
-                    string text = word.Item1;
-                    int index = word.Item2;
-                    LabelText labelText = new LabelText(text, i, index, ColorDict.Get(text));
-                    TextGrid.Children.Add(labelText);
-                }
-
-                foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Special Chars"])) {
-                    string text = word.Item1;
-                    int index = word.Item2;
-                    LabelText labelText = new LabelText(text, i, index, ColorDict.Get(text));
-                    TextGrid.Children.Add(labelText);
-                }
-
-                foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Ints"])) {
-                    string text = word.Item1;
-                    int index = word.Item2;
-                    LabelText labelText = new LabelText(text, i, index, KeyWords.integerColor);
-                    TextGrid.Children.Add(labelText);
-                }
-
-                foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Floats"])) {
-                    string text = word.Item1;
-                    int index = word.Item2;
-                    LabelText labelText = new LabelText(text, i, index, KeyWords.FloatColor);
-                    TextGrid.Children.Add(labelText);
-                }
-            }
-
-            typingWord = GetWordAtIndex(MainTextBox.CaretIndex);
-
-            if (GetLine(GetRowOfIndex(MainTextBox.CaretIndex - 1)).TrimStart().StartsWith("#"))
-                typingWord = "";
-
-            suggestionBox.Update(typingWord, GetColOfIndex(MainTextBox.CaretIndex - 1) * 8 + 8, GetRowOfIndex(MainTextBox.CaretIndex - 1) * 16 + 16);
+            BeginnIndexing = true;
         }
 
 
@@ -402,6 +414,13 @@ namespace CustomIDE {
         public Key[] PressedKeys { get; private set; }
         public HotkeyEventArgs(Key[] keys) {
             PressedKeys = keys;
+        }
+    }
+
+    public class IndexingProgressEventArgs : EventArgs {
+        public int Progress { get; private set; }
+        public IndexingProgressEventArgs(int progress) {
+            Progress = progress;
         }
     }
 }

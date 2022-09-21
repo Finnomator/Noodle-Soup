@@ -15,10 +15,17 @@ namespace CustomIDE {
 
     public partial class MainWindow : Window {
 
-        private string current_file_path;
+        private string CurrentFilePath;
         private Process CodeRunner;
         private Options options;
-        private bool runningCommand = false;
+        private bool RunningCommand {
+            set {
+                StopBut.IsEnabled = value;
+            }
+            get {
+                return StopBut.IsEnabled;
+            }
+        }
         private readonly ProcessStartInfo startInfo = new ProcessStartInfo {
             RedirectStandardError = true,
             RedirectStandardOutput = true,
@@ -26,27 +33,30 @@ namespace CustomIDE {
             CreateNoWindow = true,
             RedirectStandardInput = true
         };
-        private string tempFilePath = Path.GetFullPath("Temp.py");
+        private readonly string tempFilePath = Path.GetFullPath("Temp.py");
 
         public MainWindow() {
             InitializeComponent();
+
+            RunningCommand = false;
+
             options = new Options();
             Settings.Default.PythonInstalled = options.IsPythonInstalled();
             Settings.Default.AmpyInstalled = options.IsAmpyInstalled();
             Settings.Default.Save();
 
-            current_file_path = Path.GetFullPath(Settings.Default.LastOpenedFilePath);
+            CurrentFilePath = Path.GetFullPath(Settings.Default.LastOpenedFilePath);
 
             MaxHeight = SystemParameters.MaximizedPrimaryScreenHeight;
 
-            FileExplorer.OpenDir(Directory.GetParent(current_file_path).FullName);
+            FileExplorer.OpenDir(Directory.GetParent(CurrentFilePath).FullName);
 
             TabControler.OnUserChangesSelection += TabControlUserChange;
             TabControler.UserWillRemoveTab += TabControlRmTab;
             FileExplorer.OnUserChangesSelection += FileSelectionChange;
             GoodTextBox.HotkeyPressed += GoodTextBox_HotkeyPressed;
 
-            OpenFile(current_file_path);
+            OpenFile(CurrentFilePath);
         }
 
         private void GoodTextBox_HotkeyPressed(object sender, HotkeyEventArgs e) {
@@ -64,7 +74,7 @@ namespace CustomIDE {
             if (SaveFile())
                 TabControler.RemoveTab(tab);
 
-            if (TabControler.MainGrid.Children.Count == 0) 
+            if (TabControler.MainGrid.Children.Count == 0)
                 OpenFile(tempFilePath);
         }
 
@@ -84,17 +94,17 @@ namespace CustomIDE {
             if (path == null)
                 return;
 
-            current_file_path = path;
+            CurrentFilePath = path;
 
             try {
-                GoodTextBox.SetText(File.ReadAllText(current_file_path));
+                GoodTextBox.SetText(File.ReadAllText(CurrentFilePath));
             } catch (Exception ex) {
                 MessageBox.Show(ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
 
-            TabControler.Select(current_file_path);
-            FileExplorer.Select(current_file_path);
+            TabControler.Select(CurrentFilePath);
+            FileExplorer.Select(CurrentFilePath);
         }
 
         private void OpenFileClick(object sender, RoutedEventArgs e) {
@@ -105,22 +115,22 @@ namespace CustomIDE {
             if (SelectFile() == null)
                 return;
 
-            OpenFile(current_file_path);
+            OpenFile(CurrentFilePath);
 
-            FileExplorer.OpenDir(Directory.GetParent(current_file_path).FullName);
+            FileExplorer.OpenDir(Directory.GetParent(CurrentFilePath).FullName);
         }
 
         private string SelectFile() {
             OpenFileDialog openFileDialog = new OpenFileDialog();
             if ((bool) !openFileDialog.ShowDialog())
                 return null;
-            current_file_path = openFileDialog.FileName;
-            return current_file_path;
+            CurrentFilePath = openFileDialog.FileName;
+            return CurrentFilePath;
         }
 
         private bool SaveFile() {
             try {
-                File.WriteAllText(current_file_path, GoodTextBox.GetText());
+                File.WriteAllText(CurrentFilePath, GoodTextBox.GetText());
             } catch (Exception ex) {
                 MessageBoxResult boxResult = MessageBox.Show(ex.Message + "\nContinue without saving?", "Warning", MessageBoxButton.YesNo, MessageBoxImage.Warning);
                 return boxResult == MessageBoxResult.Yes;
@@ -138,14 +148,13 @@ namespace CustomIDE {
             if ((bool) !saveFileDialog.ShowDialog())
                 return;
 
-            current_file_path = saveFileDialog.FileName;
+            CurrentFilePath = saveFileDialog.FileName;
             SaveFile();
         }
 
         private void RunTerminalCommand(string fileName, string args) {
             OutputBox.Text += "Running \"" + fileName + (args == "" ? "" : " " + args) + "\" ...\n";
-            StopBut.IsEnabled = true;
-            runningCommand = true;
+            RunningCommand = true;
 
             CodeRunner = new Process {
                 StartInfo = startInfo
@@ -157,8 +166,7 @@ namespace CustomIDE {
             CodeRunner.OutputDataReceived += new DataReceivedEventHandler((s, e) => {
                 Dispatcher.Invoke(() => {
                     if (e.Data == null) {
-                        runningCommand = false;
-                        StopBut.IsEnabled = false;
+                        RunningCommand = false;
                         OutputBox.Text += "[Done]\n";
                     } else {
                         OutputBox.Text += "[OUT] " + e.Data + "\n";
@@ -176,8 +184,7 @@ namespace CustomIDE {
                 CodeRunner.Start();
             } catch {
                 OutputBox.Text += "Command \"" + fileName + "\" not found.\n[Done]\n";
-                runningCommand = false;
-                StopBut.IsEnabled = false;
+                RunningCommand = false;
                 return;
             }
             CodeRunner.BeginOutputReadLine();
@@ -203,7 +210,7 @@ namespace CustomIDE {
                 return;
             }
 
-            RunTerminalCommand("ampy", "--port COM" + Settings.Default.SelectedCOMPort + " run " + current_file_path);
+            RunTerminalCommand("ampy", "--port COM" + Settings.Default.SelectedCOMPort + " run " + CurrentFilePath);
         }
 
         private void StopScriptClick(object sender, RoutedEventArgs e) {
@@ -216,7 +223,7 @@ namespace CustomIDE {
         }
 
         private void WindowCloses(object sender, EventArgs e) {
-            Settings.Default.LastOpenedFilePath = current_file_path;
+            Settings.Default.LastOpenedFilePath = CurrentFilePath;
             Settings.Default.Save();
             options.Close();
             Application.Current.Shutdown();
@@ -238,7 +245,7 @@ namespace CustomIDE {
                 MessageBox.Show("Install Python first", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            RunTerminalCommand("python", current_file_path);
+            RunTerminalCommand("python", CurrentFilePath);
         }
 
         private void MaximiseClick(object sender, RoutedEventArgs e) {
@@ -272,7 +279,7 @@ namespace CustomIDE {
 
             OutputBox.Text += "[IN]  " + input + "\n";
 
-            if (!runningCommand) {
+            if (!RunningCommand) {
                 input = input.Trim();
                 string fileName = input.Split(' ')[0];
                 string args = "";
