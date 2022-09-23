@@ -89,12 +89,7 @@
 
             <GridSplitter Width="4" Panel.ZIndex="1" Grid.Column="1" Grid.RowSpan="3" Background="#FF353535" HorizontalAlignment="Center" Grid.Row="1"/>
             <local:SideFileExplorer x:Name="FileExplorer" Grid.Row="1" Grid.RowSpan="3"/>
-            <Grid Grid.Row="3" Grid.Column="2">
-                <TextBox x:Name="InputBox" TextWrapping="Wrap" Background="#FF2D2D2D" FontFamily="Cascadia Code" Foreground="White" FontSize="11" HorizontalScrollBarVisibility="Auto" PreviewKeyDown="InputKeyDown" Margin="16,0,0,0" Height="16" VerticalAlignment="Bottom" BorderThickness="0,1,1,1"/>
-                <TextBox x:Name="OutputBox" TextWrapping="Wrap" Background="#FF2D2D2D" FontFamily="Cascadia Code" AcceptsTab="True" AcceptsReturn="True" Foreground="White" IsReadOnly="True" FontSize="11" HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Auto" BorderBrush="#FF2D2D2D" Margin="0,0,0,16" TextChanged="OutputTextChange"/>
-                <TextBox TextWrapping="Wrap" Background="#FF2D2D2D" FontFamily="Cascadia Code" Foreground="White" FontSize="11" HorizontalScrollBarVisibility="Auto" PreviewKeyDown="InputKeyDown" Height="16" VerticalAlignment="Bottom" Width="16" BorderThickness="1,1,0,1" Text="&gt;" Focusable="False" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" HorizontalAlignment="Left"/>
-
-            </Grid>
+            <local:IntegratedTerminal x:Name="Terminal" Grid.Row="3" Grid.Column="2"/>
             <Grid Grid.Row="1" Grid.Column="2">
 
                 <Grid.RowDefinitions>

@@ -1,27 +1,15 @@
 ﻿using Colors;
-using NoodleSoup;
 using Styles;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Diagnostics;
 using System.Linq;
-using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
 using System.Windows.Input;
 using System.Windows.Media;
-using System.Windows.Media.Imaging;
-using System.Windows.Media.TextFormatting;
-using System.Windows.Navigation;
-using System.Windows.Shapes;
-using System.Windows.Threading;
 
 namespace CustomIDE {
     public partial class BetterTextBox : UserControl {
@@ -38,6 +26,8 @@ namespace CustomIDE {
         };
         private bool IgnoreWarning = false;
         private bool BeginnIndexing = false;
+        private int TextBoxRowHeight = 16;
+        private int TextBoxColumnWidth = 8;
 
         public BetterTextBox() {
             InitializeComponent();
@@ -52,6 +42,9 @@ namespace CustomIDE {
         }
 
         private void BetterTextBox_HotkeyPressed(object sender, HotkeyEventArgs e) {
+
+            string text = MainTextBox.Text;
+
             if (e.PressedKeys.Length == 2) {
                 bool Ctrl = false;
                 Key other_key = Key.None;
@@ -64,9 +57,8 @@ namespace CustomIDE {
                     other_key = e.PressedKeys[e.PressedKeys[0] == Key.RightCtrl ? 1 : 0];
                 }
 
-
                 if (Ctrl && other_key == Key.Space)
-                    suggestionBox.Update(typingWord, GetColOfIndex(MainTextBox.CaretIndex - 1) * 8 + 8, GetRowOfIndex(MainTextBox.CaretIndex - 1) * 16 + 16, true);
+                    suggestionBox.Update(typingWord, GetColOfIndex(MainTextBox.CaretIndex - 1, text) * TextBoxColumnWidth + TextBoxColumnWidth, GetRowOfIndex(MainTextBox.CaretIndex - 1, text) * TextBoxRowHeight + TextBoxRowHeight, true);
                 else if (Ctrl && other_key == Key.A)
                     MainTextBox.SelectAll();
                 else if (Ctrl && other_key == Key.Back) {
@@ -150,50 +142,37 @@ namespace CustomIDE {
             }
         }
 
-        int GetRowOfIndex(int index) {
-            if (index < GetLine(0).Length)
+        int GetRowOfIndex(int index, string text) {
+            if (index < GetLine(0, text).Length)
                 return 0;
             int i = -1;
-            foreach (string line in GetLines(index)) {
+            foreach (string line in GetLines(index, text)) {
                 i++;
             }
             return i;
         }
 
-        int GetColOfIndex(int index) {
+        int GetColOfIndex(int index, string text) {
             if (index == 0)
                 return 0;
             string magenta = "";
-            foreach (string line in GetLines(index)) {
+            foreach (string line in GetLines(index, text)) {
                 magenta += line;
             }
             int orange = magenta.Length - index;
-            int red = GetLine(GetRowOfIndex(index)).Length - orange;
+            int red = GetLine(GetRowOfIndex(index, text), text).Length - orange;
             return red;
         }
 
-        IEnumerable<string> GetLines() {
-            int lines = GetText().Split('\n').Length - 1;
-            for (int i = 0; i < lines; i++) {
-                yield return GetLine(i);
-            }
-        }
-
-        IEnumerable<string> GetLines(int index) {
+        IEnumerable<string> GetLines(int index, string text) {
             int mover = 0;
             int i = 0;
             while (mover <= index) {
-                string line = GetLine(i);
-
+                string line = GetLine(i, text);
                 yield return line;
-
                 mover += line.Length;
                 i++;
             }
-        }
-
-        string GetLine(int line) {
-            return GetLine(line, GetText());
         }
 
         string GetLine(int line, string text) {
@@ -216,6 +195,40 @@ namespace CustomIDE {
             InsertAtCaret(toInsert);
         }
 
+        private int GetScrollViewerRowOffset() {
+            MainScrollViewer.UpdateLayout();
+            return (int) (MainScrollViewer.ContentVerticalOffset / TextBoxRowHeight);
+        }
+
+        public int[] GetDisplayedRows(string text) {
+
+            int start_row = GetScrollViewerRowOffset();
+
+            int visible_lines = 0;
+
+            int scroll_viewer_rows = (int) (MainScrollViewer.ActualHeight / TextBoxRowHeight);
+
+            while (visible_lines <= scroll_viewer_rows) {
+                try {
+                    GetLine(start_row + visible_lines, text);
+                    visible_lines++;
+                } catch (IndexOutOfRangeException) {
+                    break;
+                }
+            }
+
+            return new int[] { start_row, start_row + visible_lines };
+        }
+
+        private string GetDisplayedText(string text) {
+            string res = "";
+            int[] row_start_end = GetDisplayedRows(text);
+            for (int i = row_start_end[0]; i < row_start_end[1]; i++) {
+                res += GetLine(i, text);
+            }
+            return res;
+        }
+
         private void Indexing() {
             while (true) {
 
@@ -225,60 +238,71 @@ namespace CustomIDE {
                 Application.Current.Dispatcher.Invoke(new Action(() => {
 
                     TextGrid.Children.Clear();
-                    string Text = GetText();
-                    string[] lines = Text.Split('\n');
-
-                    int linesBoxDelta = lines.Length - (int) LinesBox.Tag;
-                    LinesBox.Tag = lines.Length;
-
-                    if (linesBoxDelta != 0) {
-                        int last_length = lines.Length.ToString().Length;
-                        LinesBox.Text = new string('0', last_length - 1) + "1\n";
-                        for (int i = 2; i < lines.Length + 1; i++) {
-                            LinesBox.Text += new string('0', last_length - i.ToString().Length) + i + "\n";
-                        }
-                    }
+                    string text = GetText();
+                    string displayed_text = GetDisplayedText(text);
+                    string[] lines = displayed_text.Split('\n');
+                    int scroll_viewer_row_offset = GetScrollViewerRowOffset();
 
                     for (int i = 0; i < lines.Length; i++) {
                         string line = lines[i].Replace("\r", "");
                         string trimedLine = line.Trim();
 
+                        if (trimedLine.Length == 0)
+                            continue;
+
+                        int row = i + scroll_viewer_row_offset;
+
                         if (trimedLine.StartsWith("#")) {
-                            TextGrid.Children.Add(new LabelText(line.TrimStart(), i, line.Length - line.TrimStart().Length, KeyWords.commentsColor));
+                            TextGrid.Children.Add(new LabelText(line.TrimStart(), row, line.Length - line.TrimStart().Length, KeyWords.commentsColor));
                             continue;
                         }
 
                         foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Words"])) {
-                            TextGrid.Children.Add(new LabelText(word.Item1, i, word.Item2, ColorDict.Get(word.Item1)));
+                            TextGrid.Children.Add(new LabelText(word.Item1, row, word.Item2, ColorDict.Get(word.Item1)));
                         }
 
                         foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Special Chars"])) {
-                            TextGrid.Children.Add(new LabelText(word.Item1, i, word.Item2, ColorDict.Get(word.Item1)));
+                            TextGrid.Children.Add(new LabelText(word.Item1, row, word.Item2, ColorDict.Get(word.Item1)));
                         }
 
                         foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Ints"])) {
-                            TextGrid.Children.Add(new LabelText(word.Item1, i, word.Item2, ColorDict.Get(word.Item1)));
+                            TextGrid.Children.Add(new LabelText(word.Item1, row, word.Item2, ColorDict.Get(word.Item1)));
                         }
 
                         foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Floats"])) {
-                            TextGrid.Children.Add(new LabelText(word.Item1, i, word.Item2, ColorDict.Get(word.Item1)));
+                            TextGrid.Children.Add(new LabelText(word.Item1, row, word.Item2, ColorDict.Get(word.Item1)));
                         }
                     }
 
                     typingWord = GetWordAtIndex(MainTextBox.CaretIndex);
 
-                    if (GetLine(GetRowOfIndex(MainTextBox.CaretIndex - 1)).TrimStart().StartsWith("#"))
+                    if (GetLine(GetRowOfIndex(MainTextBox.CaretIndex - 1, text), text).TrimStart().StartsWith("#"))
                         typingWord = "";
 
-                    suggestionBox.Update(typingWord, GetColOfIndex(MainTextBox.CaretIndex - 1) * 8 + 8, GetRowOfIndex(MainTextBox.CaretIndex - 1) * 16 + 16);
+                    suggestionBox.Update(typingWord, GetColOfIndex(MainTextBox.CaretIndex - 1, text) * TextBoxColumnWidth + TextBoxColumnWidth, GetRowOfIndex(MainTextBox.CaretIndex - 1, text) * TextBoxRowHeight + TextBoxRowHeight);
 
                     BeginnIndexing = false;
+
                 }));
             }
         }
 
         private void TextChange(object sender, TextChangedEventArgs e) {
             BeginnIndexing = true;
+
+            string Text = GetText();
+            string[] lines = Text.Split('\n');
+
+            int linesBoxDelta = lines.Length - (int) LinesBox.Tag;
+            LinesBox.Tag = lines.Length;
+
+            if (linesBoxDelta != 0) {
+                int last_length = lines.Length.ToString().Length;
+                LinesBox.Text = new string('0', last_length - 1) + "1\n";
+                for (int i = 2; i < lines.Length + 1; i++) {
+                    LinesBox.Text += new string('0', last_length - i.ToString().Length) + i + "\n";
+                }
+            }
         }
 
 
@@ -386,20 +410,23 @@ namespace CustomIDE {
             suggestionBox.Close();
         }
 
+        private void MainScrollViwer_ScrollChanged(object sender, ScrollChangedEventArgs e) {
+            BeginnIndexing = true;
+        }
     }
 
 
     public class LabelText : TextBlock {
 
-        int Col;
-        int Row;
+        private int Col;
+        private int Row;
 
-        public LabelText(string content, int row, int col, Brush color) : base() {
+        public LabelText(string content, int row, int col, Brush color, int textBoxRowHeight = 16, int textBoxColWidth = 8) : base() {
             Foreground = color;
             Col = col;
             Row = row;
             FontFamily = new FontFamily("Cascadia Code");
-            Margin = new Thickness(Col * 8 + 3, Row * 16 + 1, 0, 0);
+            Margin = new Thickness(Col * textBoxColWidth + 3, Row * textBoxRowHeight + 1, 0, 0);
             Text = content;
             FontSize = 14;
             IsHitTestVisible = false;

@@ -1,17 +1,14 @@
 ﻿using NoodleSoup.Properties;
 using Styles;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.IO.Ports;
 using System.Linq;
 using System.Windows;
-using System.Windows.Controls;
 
 namespace CustomIDE {
     public partial class Options : Window {
-        readonly string settingsPath = Path.GetFullPath("settings.json");
         private string[] AvailablePorts;
         public Options() {
             InitializeComponent();
@@ -31,7 +28,7 @@ namespace CustomIDE {
                 ComPortItem comPortItem = new ComPortItem(port, Int32.Parse(port.Substring(3)));
                 ComPortBox.Items.Add(comPortItem);
                 if (Settings.Default.SelectedCOMPort == comPortItem.Port)
-                    ComPortBox.SelectedIndex = i+1;
+                    ComPortBox.SelectedIndex = i + 1;
             }
         }
 
@@ -77,7 +74,6 @@ namespace CustomIDE {
                 }
             };
             p.Start();
-            p.WaitForExit();
 
             return p.StandardOutput.ReadToEnd().Contains("adafruit-ampy ");
         }
@@ -93,7 +89,6 @@ namespace CustomIDE {
                 }
             };
             p.Start();
-            p.WaitForExit();
 
             return p.StandardOutput.ReadToEnd().Contains("Python ");
         }
@@ -116,7 +111,7 @@ namespace CustomIDE {
         private void UpdatePortBox() {
             ComPortBox.Items.Clear();
             ComPortBox.Items.Add(new ComPortItem("None", -1));
-            foreach(string port in AvailablePorts) { 
+            foreach (string port in AvailablePorts) {
                 ComPortBox.Items.Add(new ComPortItem(port, Int32.Parse(port.Substring(3))));
             }
         }

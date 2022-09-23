@@ -5,7 +5,6 @@ using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
-using System.Windows.Input;
 
 namespace CustomIDE {
 
@@ -117,8 +116,8 @@ namespace CustomIDE {
 
     public class DirectoryButton : Styles.DirectoryButton {
         public bool IsExpanded;
-        readonly List<DirectoryButton> ChildrenDirs = new List<DirectoryButton>();
-        readonly List<FileButton> ChildrenFiles = new List<FileButton>();
+        private List<DirectoryButton> ChildrenDirs = new List<DirectoryButton>();
+        private List<FileButton> ChildrenFiles = new List<FileButton>();
         public int Depth;
         public string DirName;
         public string DirPath;
@@ -263,67 +262,15 @@ namespace CustomIDE {
         public string FilePath;
         readonly int Depth;
         public bool isSelected;
-        private FileContextMenu fileContextMenu;
-        private Grid MainGrid;
-        private DirectoryButton ParentDir;
 
         public FileButton(string fileName, DirectoryButton parent) : base() {
-            ParentDir = parent;
             FileName = fileName;
             FileExt = Path.GetExtension(FileName);
             FilePath = Path.Combine(parent.DirPath, FileName);
             Depth = parent.Depth + 1;
             Content = fileName;
             Click += parent.FileClickPointer.Invoke;
-            MouseRightButtonDown += FileButton_MouseRightButtonDown;
             Indent(Depth * 10);
-
-            fileContextMenu = new FileContextMenu();
-            fileContextMenu.OnClick += FileContextMenu_OnClick;
-            Grid.SetRow(fileContextMenu, 2);
-
-            LostFocus += FileButton_LostFocus;
-            Loaded += FileButton_Loaded;
-        }
-
-        private void FileButton_Loaded(object sender, RoutedEventArgs e) {
-            MainGrid = (Grid) ((ListBox) Parent).Parent;
-        }
-
-        private void FileButton_LostFocus(object sender, RoutedEventArgs e) {
-            if (MainGrid.Children.Contains(fileContextMenu))
-                MainGrid.Children.Remove(fileContextMenu);
-        }
-
-        private void FileButton_MouseRightButtonDown(object sender, RoutedEventArgs e) {
-
-            FileContextMenu[] childs = MainGrid.Children.OfType<FileContextMenu>().ToArray();
-            for (int i = 0; i < childs.Count(); i++)
-                MainGrid.Children.Remove(childs[i]);
-
-            Point mouse_pos = Mouse.GetPosition(MainGrid);
-            fileContextMenu.Margin = new Thickness(mouse_pos.X, mouse_pos.Y - MainGrid.RowDefinitions[0].ActualHeight - MainGrid.RowDefinitions[1].ActualHeight, 0, 0);
-            MainGrid.Children.Add(fileContextMenu);
-        }
-
-        private void FileContextMenu_OnClick(object sender, FileContextMenu.FileContextEventArgs e) {
-            try {
-                switch (e.action) {
-                    case FileOption.Delete:
-                        File.Delete(FilePath);
-                        break;
-                    case FileOption.Paste:
-                        break;
-                    case FileOption.Copy:
-                        break;
-                    case FileOption.Cut:
-                        break;
-                }
-            } catch (Exception ex) {
-                MessageBox.Show("Exception: " + ex.Message, "Error", MessageBoxButton.OK, MessageBoxImage.Error);
-            }
-            MainGrid.Children.Remove(fileContextMenu);
-            ParentDir.Refresh();
         }
 
         public void Select() {

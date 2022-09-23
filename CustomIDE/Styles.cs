@@ -1,15 +1,11 @@
 ﻿using Colors;
-using CustomIDE;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
-using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace Styles {
     public class CodyButton : Button {
@@ -243,83 +239,5 @@ namespace Styles {
             Port = -1;
             Content = "None";
         }
-    }
-
-    public class FileContextMenu : Grid {
-
-        public delegate void Click(object sender, FileContextEventArgs e);
-        public event Click OnClick;
-
-        private ContextButton[] contextButtons;
-
-        public class ContextButton : Button {
-
-            public FileOption Action;
-
-            public ContextButton(FileOption fileOption) : base() {
-
-                Action = fileOption;
-
-                HorizontalAlignment = HorizontalAlignment.Stretch;
-                VerticalAlignment = VerticalAlignment.Stretch;
-                BorderThickness = new Thickness(0);
-                Padding = new Thickness(2, 0, 2, 0);
-
-                Background = Brushes.DarkGray;
-                Foreground = Brushes.White;
-
-                Content = fileOption.ToString();
-                FontSize = 10;
-                HorizontalContentAlignment = HorizontalAlignment.Left;
-            }
-        }
-
-        public class FileContextEventArgs : EventArgs {
-            public FileOption action { get; private set; }
-
-            public FileContextEventArgs(FileOption action) {
-                this.action = action;
-            }
-        }
-
-        public FileContextMenu() : base() {
-
-            HorizontalAlignment = HorizontalAlignment.Left;
-            VerticalAlignment = VerticalAlignment.Top;
-
-            ContextButton renameButton = new ContextButton(FileOption.Rename);
-            ContextButton cutButton = new ContextButton(FileOption.Cut);
-            ContextButton copyButton = new ContextButton(FileOption.Copy);
-            ContextButton pasteButton = new ContextButton(FileOption.Paste);
-            ContextButton deleteButton = new ContextButton(FileOption.Delete);
-            contextButtons = new ContextButton[] { renameButton, cutButton, copyButton, pasteButton, deleteButton };
-
-            renameButton.Click += Button_Click;
-            cutButton.Click += Button_Click;
-            copyButton.Click += Button_Click;
-            pasteButton.Click += Button_Click;
-            deleteButton.Click += Button_Click;
-
-            SetZIndex(this, 1);
-
-            for (int i = 0; i < contextButtons.Length; i++) {
-                ContextButton contextButton = contextButtons[i];
-                RowDefinitions.Add(new RowDefinition());
-                SetRow(contextButton, i);
-                Children.Add(contextButton);
-            }
-        }
-
-        private void Button_Click(object sender, RoutedEventArgs e) {
-            OnClick(sender, new FileContextEventArgs(((ContextButton) sender).Action));
-        }
-    }
-
-    public enum FileOption {
-        Rename,
-        Cut,
-        Copy,
-        Paste,
-        Delete,
     }
 }

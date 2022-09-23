@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:CustomIDE"
              mc:Ignorable="d"
              TextOptions.TextFormattingMode="Display">
-    <ScrollViewer>
+    <ScrollViewer x:Name="MainScrollViewer" ScrollChanged="MainScrollViwer_ScrollChanged">
 
         <Grid x:Name="MainGrid" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" >
 

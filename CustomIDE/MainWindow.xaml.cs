@@ -1,15 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Windows;
-using System.Windows.Documents;
-using System.IO;
-using System.Diagnostics;
-using System.Windows.Input;
-using System.Linq;
-using System.Windows.Controls;
-using System.Windows.Media;
-using Microsoft.Win32;
+﻿using Microsoft.Win32;
 using NoodleSoup.Properties;
+using System;
+using System.Diagnostics;
+using System.IO;
+using System.Linq;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Input;
 
 namespace CustomIDE {
 
@@ -26,13 +23,6 @@ namespace CustomIDE {
                 return StopBut.IsEnabled;
             }
         }
-        private readonly ProcessStartInfo startInfo = new ProcessStartInfo {
-            RedirectStandardError = true,
-            RedirectStandardOutput = true,
-            UseShellExecute = false,
-            CreateNoWindow = true,
-            RedirectStandardInput = true
-        };
         private readonly string tempFilePath = Path.GetFullPath("Temp.py");
 
         public MainWindow() {
@@ -152,47 +142,12 @@ namespace CustomIDE {
             SaveFile();
         }
 
-        private void RunTerminalCommand(string fileName, string args) {
-            OutputBox.Text += "Running \"" + fileName + (args == "" ? "" : " " + args) + "\" ...\n";
-            RunningCommand = true;
-
-            CodeRunner = new Process {
-                StartInfo = startInfo
-            };
-
-            CodeRunner.StartInfo.FileName = fileName;
-            CodeRunner.StartInfo.Arguments = args;
-
-            CodeRunner.OutputDataReceived += new DataReceivedEventHandler((s, e) => {
-                Dispatcher.Invoke(() => {
-                    if (e.Data == null) {
-                        RunningCommand = false;
-                        OutputBox.Text += "[Done]\n";
-                    } else {
-                        OutputBox.Text += "[OUT] " + e.Data + "\n";
-                    }
-                });
-            });
-            CodeRunner.ErrorDataReceived += new DataReceivedEventHandler((s, e) => {
-                Dispatcher.Invoke(() => {
-                    if (e.Data != null)
-                        OutputBox.Text += e.Data + "\n";
-                });
-            });
-
-            try {
-                CodeRunner.Start();
-            } catch {
-                OutputBox.Text += "Command \"" + fileName + "\" not found.\n[Done]\n";
-                RunningCommand = false;
-                return;
-            }
-            CodeRunner.BeginOutputReadLine();
-            CodeRunner.BeginErrorReadLine();
-        }
-
         private void StopTerminalCommand() {
             CodeRunner.Kill();
+        }
+
+        private void RunTerminalCommand(string file, string args) {
+            RunningCommand = true;
         }
 
         private void RunScriptClick(object sender, RoutedEventArgs e) {
@@ -267,33 +222,6 @@ namespace CustomIDE {
                 }
                 DragMove();
             }
-        }
-
-        private void InputKeyDown(object sender, KeyEventArgs e) {
-            if (e.Key != Key.Return)
-                return;
-
-            string input = InputBox.Text;
-
-            InputBox.Text = "";
-
-            OutputBox.Text += "[IN]  " + input + "\n";
-
-            if (!RunningCommand) {
-                input = input.Trim();
-                string fileName = input.Split(' ')[0];
-                string args = "";
-                if (fileName.Length < input.Length)
-                    args = input.Substring(fileName.Length);
-
-                RunTerminalCommand(fileName, args);
-            } else {
-                CodeRunner.StandardInput.WriteLine(input);
-            }
-        }
-
-        private void OutputTextChange(object sender, TextChangedEventArgs e) {
-            OutputBox.ScrollToEnd();
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e) {

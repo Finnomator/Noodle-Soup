@@ -111,7 +111,9 @@
     <Compile Include="BetterTextBox.xaml.cs">
       <DependentUpon>BetterTextBox.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Analyze.cs" />
+    <Compile Include="IntegratedTerminal.xaml.cs">
+      <DependentUpon>IntegratedTerminal.xaml</DependentUpon>
+    </Compile>
     <Compile Include="TabControl.xaml.cs">
       <DependentUpon>TabControl.xaml</DependentUpon>
     </Compile>
@@ -119,7 +121,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="CoderBox.xaml">
+    <Page Include="IntegratedTerminal.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -131,14 +133,10 @@
       <DependentUpon>App.xaml</DependentUpon>
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="CoderBox.xaml.cs">
-      <DependentUpon>CoderBox.xaml</DependentUpon>
-    </Compile>
     <Compile Include="SideFileExplorer.xaml.cs">
       <DependentUpon>SideFileExplorer.xaml</DependentUpon>
     </Compile>
     <Compile Include="Styles.cs" />
-    <Compile Include="Highlighter.cs" />
     <Compile Include="Colors.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
