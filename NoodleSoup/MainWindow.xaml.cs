@@ -8,12 +8,11 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace CustomIDE {
+namespace NoodleSoup {
 
     public partial class MainWindow : Window {
 
         private string CurrentFilePath;
-        private Process CodeRunner;
         private Options options;
         private bool RunningCommand {
             set {
@@ -142,10 +141,6 @@ namespace CustomIDE {
             SaveFile();
         }
 
-        private void StopTerminalCommand() {
-            CodeRunner.Kill();
-        }
-
         private void RunTerminalCommand(string file, string args) {
             RunningCommand = true;
         }
@@ -169,7 +164,6 @@ namespace CustomIDE {
         }
 
         private void StopScriptClick(object sender, RoutedEventArgs e) {
-            StopTerminalCommand();
         }
 
         private void OptionsClick(object sender, RoutedEventArgs e) {

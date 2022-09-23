@@ -7,7 +7,7 @@ using System.IO.Ports;
 using System.Linq;
 using System.Windows;
 
-namespace CustomIDE {
+namespace NoodleSoup {
     public partial class Options : Window {
         private string[] AvailablePorts;
         public Options() {

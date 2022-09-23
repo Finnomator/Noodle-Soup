@@ -5,7 +5,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 
-namespace CustomIDE {
+namespace NoodleSoup {
     public partial class IntegratedTerminal : UserControl {
 
         public IntegratedTerminal() {

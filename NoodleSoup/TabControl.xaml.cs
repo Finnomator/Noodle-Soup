@@ -2,7 +2,7 @@
 using System.Windows;
 using System.Windows.Controls;
 
-namespace CustomIDE {
+namespace NoodleSoup {
     public partial class TabControl : UserControl {
 
         int TotalWidth = 0;

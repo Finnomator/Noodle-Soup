@@ -1,9 +1,9 @@
-﻿<UserControl x:Class="CustomIDE.SideFileExplorer"
+﻿<UserControl x:Class="NoodleSoup.SideFileExplorer"
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:CustomIDE" xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:local="clr-namespace:NoodleSoup" xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d"
              TextOptions.TextFormattingMode="Display">
     <Grid>

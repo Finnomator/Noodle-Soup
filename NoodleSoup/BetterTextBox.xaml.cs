@@ -11,7 +11,7 @@ using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Media;
 
-namespace CustomIDE {
+namespace NoodleSoup {
     public partial class BetterTextBox : UserControl {
         public delegate void HotkeyHandler(object sender, HotkeyEventArgs e);
         public event HotkeyHandler HotkeyPressed;

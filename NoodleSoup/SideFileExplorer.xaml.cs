@@ -6,7 +6,7 @@ using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 
-namespace CustomIDE {
+namespace NoodleSoup {
 
 
     public partial class SideFileExplorer : UserControl {
