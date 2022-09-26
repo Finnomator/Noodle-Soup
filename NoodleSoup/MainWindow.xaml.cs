@@ -1,7 +1,6 @@
 ﻿using Microsoft.Win32;
 using NoodleSoup.Properties;
 using System;
-using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Windows;
@@ -44,8 +43,13 @@ namespace NoodleSoup {
             TabControler.UserWillRemoveTab += TabControlRmTab;
             FileExplorer.OnUserChangesSelection += FileSelectionChange;
             GoodTextBox.HotkeyPressed += GoodTextBox_HotkeyPressed;
+            Terminal.OnCmdFinished += Terminal_OnCmdFinished;
 
             OpenFile(CurrentFilePath);
+        }
+
+        private void Terminal_OnCmdFinished(object sender, EventArgs e) {
+            RunningCommand = false;
         }
 
         private void GoodTextBox_HotkeyPressed(object sender, HotkeyEventArgs e) {
@@ -58,7 +62,7 @@ namespace NoodleSoup {
 
         private void TabControlRmTab(object sender, EventArgs e) {
 
-            TabItem tab = ((TabItem) ((Button) sender).Tag);
+            TabItem tab = (TabItem) ((Button) sender).Tag;
 
             if (SaveFile())
                 TabControler.RemoveTab(tab);
@@ -141,8 +145,9 @@ namespace NoodleSoup {
             SaveFile();
         }
 
-        private void RunTerminalCommand(string file, string args) {
+        private void RunTerminalCommand(string command) {
             RunningCommand = true;
+            Terminal.Run(command);
         }
 
         private void RunScriptClick(object sender, RoutedEventArgs e) {
@@ -160,10 +165,11 @@ namespace NoodleSoup {
                 return;
             }
 
-            RunTerminalCommand("ampy", "--port COM" + Settings.Default.SelectedCOMPort + " run " + CurrentFilePath);
+            RunTerminalCommand("ampy --port COM" + Settings.Default.SelectedCOMPort + " run " + CurrentFilePath);
         }
 
         private void StopScriptClick(object sender, RoutedEventArgs e) {
+            Terminal.Stop();
         }
 
         private void OptionsClick(object sender, RoutedEventArgs e) {
@@ -194,7 +200,7 @@ namespace NoodleSoup {
                 MessageBox.Show("Install Python first", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            RunTerminalCommand("python", CurrentFilePath);
+            RunTerminalCommand("python " + CurrentFilePath);
         }
 
         private void MaximiseClick(object sender, RoutedEventArgs e) {

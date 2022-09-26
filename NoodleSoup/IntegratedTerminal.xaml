@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NoodleSoup"
              mc:Ignorable="d">
-    <Grid>
-        <TextBox x:Name="MainTextBox" PreviewKeyDown="MainTextBox_PreviewKeyDown"/>
-    </Grid>
+    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
+        <TextBox x:Name="MainTextBox" PreviewKeyDown="MainTextBox_PreviewKeyDown" AcceptsTab="True" AcceptsReturn="True" Foreground="White" Background="#FF333333" PreviewMouseLeftButtonDown="MainTextBox_MouseLeftButtonDown" IsReadOnly="True" TextInput="MainTextBox_TextInput" FontFamily="Cascadia Code" IsReadOnlyCaretVisible="True"/>
+    </ScrollViewer>
 </UserControl>

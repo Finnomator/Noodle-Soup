@@ -2,6 +2,7 @@
 using Styles;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -57,26 +58,52 @@ namespace NoodleSoup {
                     other_key = e.PressedKeys[e.PressedKeys[0] == Key.RightCtrl ? 1 : 0];
                 }
 
-                if (Ctrl && other_key == Key.Space)
-                    suggestionBox.Update(typingWord, GetColOfIndex(MainTextBox.CaretIndex - 1, text) * TextBoxColumnWidth + TextBoxColumnWidth, GetRowOfIndex(MainTextBox.CaretIndex - 1, text) * TextBoxRowHeight + TextBoxRowHeight, true);
-                else if (Ctrl && other_key == Key.A)
-                    MainTextBox.SelectAll();
-                else if (Ctrl && other_key == Key.Back) {
-                    CutOutString(MainTextBox.CaretIndex - typingWord.Length, MainTextBox.CaretIndex);
-                    typingWord = "";
-                } else if (Ctrl && other_key == Key.C) {
-                    if (MainTextBox.SelectionLength > 0)
-                        Clipboard.SetText(MainTextBox.SelectedText);
-                } else if (Ctrl && other_key == Key.X) {
-                    string selected_text = MainTextBox.SelectedText;
-                    if (selected_text != "") {
-                        Clipboard.SetText(selected_text);
-                        CutOutString(MainTextBox.SelectionStart, MainTextBox.SelectionStart + MainTextBox.SelectionLength);
+                if (Ctrl) {
+                    switch (other_key) {
+                        case Key.Space:
+                            suggestionBox.Update(typingWord,
+                                                 GetColOfIndex(MainTextBox.CaretIndex - 1, text) * TextBoxColumnWidth + TextBoxColumnWidth,
+                                                 GetRowOfIndex(MainTextBox.CaretIndex - 1, text) * TextBoxRowHeight + TextBoxRowHeight,
+                                                 true);
+                            break;
+                        case Key.A:
+                            MainTextBox.SelectAll();
+
+                            break;
+                        case Key.Back:
+                            CutOutString(MainTextBox.CaretIndex - typingWord.Length, MainTextBox.CaretIndex);
+                            typingWord = "";
+                            break;
+                        case Key.C:
+                            if (MainTextBox.SelectionLength > 0)
+                                Clipboard.SetText(MainTextBox.SelectedText);
+                            break;
+                        case Key.V:
+                            if (MainTextBox.SelectionLength > 0)
+                                CutOutString(MainTextBox.SelectionStart, MainTextBox.SelectionStart + MainTextBox.SelectionLength);
+                            InsertAtCaret(Clipboard.GetText());
+                            break;
+                        case Key.X:
+                            string selected_text = MainTextBox.SelectedText;
+                            if (selected_text != "") {
+                                Clipboard.SetText(selected_text);
+                                CutOutString(MainTextBox.SelectionStart, MainTextBox.SelectionStart + MainTextBox.SelectionLength);
+                            }
+                            break;
+                        case Key.Left:
+                            int old_idx = MainTextBox.CaretIndex;
+                            int w_len = GetWordLeftOfIndex(old_idx).Length;
+                            MainTextBox.CaretIndex -= w_len < 1 && old_idx != 0 ? 1 : w_len;
+
+                            if (old_idx == MainTextBox.CaretIndex && MainTextBox.CaretIndex - 2 > -1)
+                                MainTextBox.CaretIndex -= 2;
+
+                            break;
+                        case Key.Right:
+                            int wr_len = GetWordRightOfIndex(MainTextBox.CaretIndex).Length;
+                            MainTextBox.CaretIndex += wr_len < 1 ? 1 : wr_len;
+                            break;
                     }
-                } else if (Ctrl && other_key == Key.V) {
-                    if (MainTextBox.SelectionLength > 0)
-                        CutOutString(MainTextBox.SelectionStart, MainTextBox.SelectionStart + MainTextBox.SelectionLength);
-                    InsertAtCaret(Clipboard.GetText());
                 }
             }
         }
@@ -109,6 +136,40 @@ namespace NoodleSoup {
         public void InsertAtCaret(string text, int caret_offset) {
             InsertText(text, MainTextBox.CaretIndex);
             MainTextBox.CaretIndex += caret_offset;
+        }
+
+        private string GetWordLeftOfIndex(int index) {
+
+            if (index == 0)
+                return "";
+
+            string left = "";
+            string text = GetText();
+
+            for (int i = index - 1; i > -1 && char.IsLetter(text[i]); i--) {
+                try {
+                    left += text[i];
+
+                } catch (IndexOutOfRangeException) { break; }
+            }
+
+            char[] charArray = left.ToCharArray();
+            Array.Reverse(charArray);
+
+            return new string(charArray);
+        }
+
+        private string GetWordRightOfIndex(int index) {
+            string right = "";
+            string text = GetText();
+
+            for (int i = index; i < text.Length && char.IsLetter(text[i]); i++) {
+                try {
+                    right += text[i];
+                } catch (IndexOutOfRangeException) { break; }
+            }
+
+            return right;
         }
 
         string GetWordAtIndex(int index) {
@@ -425,7 +486,7 @@ namespace NoodleSoup {
             Foreground = color;
             Col = col;
             Row = row;
-            FontFamily = new FontFamily("Cascadia Code");
+            FontFamily = new FontFamily("Cascadia Mono");
             Margin = new Thickness(Col * textBoxColWidth + 3, Row * textBoxRowHeight + 1, 0, 0);
             Text = content;
             FontSize = 14;
