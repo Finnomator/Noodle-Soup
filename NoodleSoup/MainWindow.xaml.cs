@@ -200,7 +200,7 @@ namespace NoodleSoup {
                 MessageBox.Show("Install Python first", "Error", MessageBoxButton.OK, MessageBoxImage.Error);
                 return;
             }
-            RunTerminalCommand("python " + CurrentFilePath);
+            RunTerminalCommand("python -u " + CurrentFilePath);
         }
 
         private void MaximiseClick(object sender, RoutedEventArgs e) {

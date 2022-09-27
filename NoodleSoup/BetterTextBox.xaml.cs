@@ -118,9 +118,8 @@ namespace NoodleSoup {
 
         public void CutOutString(int start, int end) {
             string text = MainTextBox.Text;
-            int oldidx = MainTextBox.CaretIndex;
             MainTextBox.Text = text.Substring(0, start) + text.Substring(end);
-            MainTextBox.CaretIndex = oldidx;
+            MainTextBox.CaretIndex = start;
         }
 
         public void InsertText(string text, int index) {

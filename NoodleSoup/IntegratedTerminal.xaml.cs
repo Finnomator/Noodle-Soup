@@ -2,6 +2,7 @@
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Documents;
@@ -12,152 +13,190 @@ namespace NoodleSoup {
 
         public delegate void CmdFinishedHandler(object sender, EventArgs e);
         public event CmdFinishedHandler OnCmdFinished;
-        private Cmd cmd;
-        public string WorkingDirectory { get; private set; }
+        private string OldInputText = "";
 
         public IntegratedTerminal() {
             InitializeComponent();
-            WorkingDirectory = "";
-
-            cmd = new Cmd("");
-
-            cmd.OutputDataReceived += Cmd_OutputDataReceived;
-            cmd.ErrorDataReceived += Cmd_ErrorDataReceived;
+            PrintWorkingDir();
         }
 
-        private int GetCaretCol() => MainTextBox.CaretIndex - MainTextBox.GetCharacterIndexFromLineIndex(GetCaretRow());
-
-        private int GetCaretRow() => MainTextBox.GetLineIndexFromCharacterIndex(MainTextBox.CaretIndex);
+        private void PrintWorkingDir() {
+            OutputTextBlock.Text += Cmd.WorkingDirectory + ">";
+        }
 
         private void Cmd_Exited(object sender, EventArgs e) {
-            OnCmdFinished(cmd, e);
+
+            try {
+                if (!Cmd.P.HasExited) {
+                    Cmd.P.Kill();
+                    Cmd.P.Close();
+                }
+            } catch (InvalidOperationException) {
+
+            }
+
+            Dispatcher.Invoke((Action) delegate () {
+                PrintWorkingDir();
+                OnCmdFinished(this, e);
+            });
         }
 
         private void Cmd_ErrorDataReceived(object sender, DataReceivedEventArgs e) {
             Dispatcher.Invoke((Action) delegate () {
-                if (e.Data != null)
-                    AppendText(e.Data + "\n");
+                if (e.Data != null) {
+                    OutputTextBlock.Text += e.Data + "\n";
+                    OutputScroller.ScrollToBottom();
+                }
             });
         }
 
         private void Cmd_OutputDataReceived(object sender, DataReceivedEventArgs e) {
             Dispatcher.Invoke((Action) delegate () {
-                if (e.Data != null)
-                    AppendText(e.Data + "\n");
+                if (e.Data != null) {
+                    OutputTextBlock.Text += e.Data + "\n";
+                    OutputScroller.ScrollToBottom();
+                } else
+                    Cmd_Exited(this, new EventArgs());
             });
         }
 
-        private void MainTextBox_PreviewKeyDown(object sender, KeyEventArgs e) {
+        public void Run(string command) {
+
+            command = command.Trim();
+
+            OutputTextBlock.Text += command + "\n";
+
+            if (command == "cls") {
+                OutputTextBlock.Text = "";
+                PrintWorkingDir();
+                return;
+            }
+
+            Cmd.RunWithReadLine(command);
+            Cmd.P.OutputDataReceived += Cmd_OutputDataReceived;
+            Cmd.P.ErrorDataReceived += Cmd_ErrorDataReceived;
+        }
+
+        public void Stop() {
+            Cmd_Exited(this, new EventArgs());
+        }
+
+        private void InputTextBox_PreviewKeyDown(object sender, KeyEventArgs e) {
             switch (e.Key) {
                 case Key.Return:
-                    string command = MainTextBox.GetLineText(GetCaretRow());
-                    if (cmd.HasExited) {
+                    e.Handled = true;
+
+                    string command = InputTextBox.Text;
+
+                    if (command == "")
+                        break;
+
+                    InputTextBox.Text = "";
+                    if (Cmd.P.HasExited)
                         Run(command);
-                    } else {
-                        cmd.StandardInput.WriteLine(command);
-                    }
-                    break;
-                case Key.Up:
-                    e.Handled = true;
-                    break;
-                case Key.Down:
-                    e.Handled = true;
-                    break;
-                case Key.Back:
-                    if (GetCaretCol() > 0) {
-                        RemoveText(-1);
-                    }
-                    break;
-                case Key.Left:
-                    if (GetCaretCol() == 0) {
-                        e.Handled = true;
-                    }
-                    break;
-                case Key.Right:
-                    if (MainTextBox.CaretIndex == MainTextBox.Text.Length)
-                        e.Handled = true;
-                    break;
-                case Key.Delete:
-                    if (MainTextBox.CaretIndex < MainTextBox.Text.Length) {
-                        RemoveText(1);
-                    }
-                    break;
-                case Key.Space:
-                    AppendText(" ");
+                    else
+                        Cmd.P.StandardInput.WriteLine(command);
                     break;
             }
         }
 
-        private void MainTextBox_TextInput(object sender, TextCompositionEventArgs e) {
-
-            if (e.Text == "\n" || e.Text == "\r")
-                return;
-
-            AppendText(e.Text);
-        }
-
-        private void CutOutSequence(int start, int end) {
-            if (end > start)
-                MainTextBox.Text = MainTextBox.Text.Substring(0, start) + MainTextBox.Text.Substring(end);
-            else if (end < start)
-                MainTextBox.Text = MainTextBox.Text.Substring(0, end) + MainTextBox.Text.Substring(start);
-        }
-
-        private void RemoveText(int length) {
-            int old_idx = MainTextBox.CaretIndex;
-            CutOutSequence(old_idx, old_idx + length);
-
-            if (length < 0)
-                MainTextBox.CaretIndex = old_idx - length;
-            else
-                MainTextBox.CaretIndex = old_idx;
-        }
-
-        private void AppendText(string text) {
-            int old_idx = MainTextBox.CaretIndex;
-            MainTextBox.Text += text;
-            MainTextBox.CaretIndex = old_idx + text.Length;
-        }
-
-        public void Run(string command) {
-            cmd = new Cmd(command);
-        }
-
-        public void Stop() {
-            cmd.Kill();
-        }
-
-        public void ChangeDir(string working_dir) {
-            AppendText($"{working_dir}> ");
-            WorkingDirectory = working_dir;
-        }
-
-        private void MainTextBox_MouseLeftButtonDown(object sender, MouseButtonEventArgs e) {
-            if (GetCaretCol() < WorkingDirectory.Length + 2)
-                MainTextBox.CaretIndex = GetCaretRow() + WorkingDirectory.Length + 2;
+        private void InputTextBox_TextChanged(object sender, TextChangedEventArgs e) {
+            if (OldInputText.Length > 0)
+                OutputTextBlock.Text = OutputTextBlock.Text.Remove(OutputTextBlock.Text.Length - OldInputText.Length);
+            OutputTextBlock.Text += InputTextBox.Text;
+            OldInputText = InputTextBox.Text;
         }
     }
 
-    public class Cmd : Process {
+    public class Cmd {
 
-        public Cmd(string command) : base() {
+        public static Process P { get; private set; }
+        public static string WorkingDirectory { get; private set; }
+        private static char Drive;
 
-            EnableRaisingEvents = true;
+        static Cmd() {
+            P = new Process();
+            WorkingDirectory = @"C:\Users\" + Environment.UserName;
+            Drive = 'c';
+            RunAndGetOutput("");
+        }
 
-            StartInfo = new ProcessStartInfo {
-                CreateNoWindow = true,
-                RedirectStandardError = true,
-                RedirectStandardInput = true,
-                RedirectStandardOutput = true,
-                UseShellExecute = false,
-                FileName = "cmd.exe",
-                Arguments = "/c " + command,
+        private static void SetProcess(string command) {
+
+            command = command.Trim();
+
+            P = new Process {
+                EnableRaisingEvents = true,
+                StartInfo = new ProcessStartInfo {
+                    CreateNoWindow = true,
+                    RedirectStandardError = true,
+                    RedirectStandardInput = true,
+                    RedirectStandardOutput = true,
+                    UseShellExecute = false,
+                    FileName = "cmd.exe",
+                }
             };
 
-            Start();
+            if (command.Length == 2 && command[1] == ':') {
+                Drive = command[0];
+                string dir = GetCDTarget(command);
 
-            BeginOutputReadLine();
-            BeginErrorReadLine();
+                if (dir != "")
+                    WorkingDirectory = dir;
+            }
+
+            if (command.StartsWith("cd ") && !command.Contains("/?")) {
+
+                string dir = GetCDTarget(command);
+
+                if (dir != "")
+                    WorkingDirectory = dir;
+            }
+
+            P.StartInfo.Arguments = $"/c cd {WorkingDirectory} && {Drive}: && {command}";
+        }
+
+        public static void RunWithReadLine(string command) {
+
+            SetProcess(command);
+
+            P.Start();
+
+            if (command.StartsWith("cd ") && !command.Contains("/?")) {
+                P.Kill();
+            }
+
+            P.BeginOutputReadLine();
+            P.BeginErrorReadLine();
+        }
+
+        public static Tuple<string, string> RunAndGetOutput(string command) {
+
+            SetProcess(command);
+
+            P.Start();
+
+            if (command.StartsWith("cd ") && !command.Contains("/?")) {
+                P.Kill();
+                return Tuple.Create("", "");
+            }
+
+            return Tuple.Create(P.StandardOutput.ReadToEnd(), P.StandardError.ReadToEnd());
+        }
+
+        private static string GetCDTarget(string cd_command) {
+            Process finder = new Process {
+                StartInfo = new ProcessStartInfo {
+                    UseShellExecute = false,
+                    CreateNoWindow = true,
+                    RedirectStandardOutput = true,
+                    FileName = "cmd.exe",
+                    Arguments = $"/c {Drive}: && cd {WorkingDirectory} && {cd_command} && cd",
+                }
+            };
+
+            finder.Start();
+            return finder.StandardOutput.ReadToEnd().TrimEnd();
         }
     }
 }

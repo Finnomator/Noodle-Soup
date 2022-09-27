@@ -100,7 +100,7 @@ namespace Styles {
         SolidColorBrush selectedBrush = new SolidColorBrush(Color.FromArgb(255, 150, 150, 150));
         SolidColorBrush unselectedBrush = new SolidColorBrush(Color.FromArgb(255, 100, 100, 100));
         SolidColorBrush borderBrush = Brushes.Gray;
-        Grid mainGrid = new Grid();
+        StackPanel mainPanel= new StackPanel();
         ScrollViewer scrollViewer = new ScrollViewer();
         public string typingWord = "";
         public string[] possibleWords = KeyWords.keywords.Concat(KeyWords.buildtIns).ToArray();
@@ -120,14 +120,14 @@ namespace Styles {
             scrollViewer.VerticalScrollBarVisibility = ScrollBarVisibility.Auto;
             scrollViewer.HorizontalScrollBarVisibility = ScrollBarVisibility.Auto;
 
-            scrollViewer.Content = mainGrid;
+            scrollViewer.Content = mainPanel;
             Child = scrollViewer;
 
             Close();
         }
 
         public void Close() {
-            mainGrid.Children.Clear();
+            mainPanel.Children.Clear();
             sugButtons.Clear();
             Visibility = Visibility.Hidden;
             isOpen = false;
@@ -144,12 +144,10 @@ namespace Styles {
 
         private void UpdateTypingWord() {
 
-            mainGrid.Children.Clear();
-            mainGrid.RowDefinitions.Clear();
+            mainPanel.Children.Clear();
             sugButtons.Clear();
 
             foreach (string suggestion in FindMatches(typingWord)) {
-                mainGrid.RowDefinitions.Add(new RowDefinition());
 
                 Button sug = new Button {
                     Content = suggestion,
@@ -167,14 +165,12 @@ namespace Styles {
 
                 sug.Click += SugButtonClick;
 
-                sug.SetValue(Grid.RowProperty, mainGrid.RowDefinitions.Count - 1);
-
                 sugButtons.Add(sug);
 
-                mainGrid.Children.Add(sug);
+                mainPanel.Children.Add(sug);
             }
 
-            if (mainGrid.Children.Count == 0)
+            if (mainPanel.Children.Count == 0)
                 Close();
         }
 

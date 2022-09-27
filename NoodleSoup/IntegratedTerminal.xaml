@@ -5,7 +5,26 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NoodleSoup"
              mc:Ignorable="d">
-    <ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">
-        <TextBox x:Name="MainTextBox" PreviewKeyDown="MainTextBox_PreviewKeyDown" AcceptsTab="True" AcceptsReturn="True" Foreground="White" Background="#FF333333" PreviewMouseLeftButtonDown="MainTextBox_MouseLeftButtonDown" IsReadOnly="True" TextInput="MainTextBox_TextInput" FontFamily="Cascadia Code" IsReadOnlyCaretVisible="True"/>
-    </ScrollViewer>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ScrollViewer x:Name="OutputScroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" VerticalAlignment="Stretch">
+
+
+            <TextBox x:Name="OutputTextBlock" IsReadOnly="True" Foreground="White" Background="#FF333333" FontFamily="Cascadia Code" BorderBrush="#FF333333"/>
+        </ScrollViewer>
+
+        <Border Grid.Row="1" BorderThickness="1" BorderBrush="Aqua">
+            <Grid Background="#FF333333">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="Auto"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Grid.Row="1" Text=">" Foreground="Gray"/>
+                <TextBox x:Name="InputTextBox" Grid.Column="1" FontFamily="Cascadia Code" Background="Transparent" Foreground="White" BorderThickness="0" PreviewKeyDown="InputTextBox_PreviewKeyDown" AcceptsTab="True" AcceptsReturn="True" CaretBrush="White" TextChanged="InputTextBox_TextChanged"/>
+            </Grid>
+        </Border>
+    </Grid>
 </UserControl>
