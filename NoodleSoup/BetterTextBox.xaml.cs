@@ -244,7 +244,9 @@ namespace NoodleSoup {
 
         private void InsertSelectedSuggestionButton() {
             string toInsert = (string) suggestionBox.selectedButton.Content;
-            toInsert = toInsert.Substring(typingWord.Length);
+            int left_len = GetWordLeftOfIndex(MainTextBox.CaretIndex).Length;
+            int right_len = GetWordRightOfIndex(MainTextBox.CaretIndex).Length;
+            CutOutString(MainTextBox.CaretIndex - left_len, MainTextBox.CaretIndex + right_len);
             InsertAtCaret(toInsert);
         }
 
