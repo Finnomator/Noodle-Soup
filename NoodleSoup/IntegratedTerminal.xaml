@@ -10,7 +10,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <ScrollViewer x:Name="OutputScroller" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" VerticalAlignment="Stretch">
+        <ScrollViewer x:Name="OutputScroller" Template="{StaticResource StylishScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" VerticalAlignment="Stretch">
 
 
             <TextBox x:Name="OutputTextBlock" IsReadOnly="True" Foreground="White" Background="#FF333333" FontFamily="Cascadia Code" BorderBrush="#FF333333"/>

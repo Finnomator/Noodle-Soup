@@ -24,23 +24,21 @@
             <Button Grid.Column="1" Content="&#x1f4c4;" Click="AddFile_Click"/>
             <Button Grid.Column="2" Content="&#x21bb;" Click="RefreshClick"/>
         </Grid>
-        <ListBox x:Name="FileExplorer" Grid.Row="2" Background="#FF292929" FontFamily="Cascadia Code" BorderThickness="0,0,0,0" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Auto" RequestBringIntoView="RequestBringIntoView">
-            <ListBox.Resources>
-                <sys:Double x:Key="{x:Static SystemParameters.HorizontalScrollBarHeightKey}">10</sys:Double>
-                <sys:Double x:Key="{x:Static SystemParameters.VerticalScrollBarWidthKey}">10</sys:Double>
-            </ListBox.Resources>
-            <ListBox.ItemContainerStyle>
-                <Style TargetType="{x:Type ListBoxItem}">
-                    <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
-                    <Setter Property="Template">
-                        <Setter.Value>
-                            <ControlTemplate TargetType="{x:Type ListBoxItem}">
-                                <ContentPresenter/>
-                            </ControlTemplate>
-                        </Setter.Value>
-                    </Setter>
-                </Style>
-            </ListBox.ItemContainerStyle>
-        </ListBox>
+        <ScrollViewer Template="{StaticResource StylishScrollViewer}" Grid.Row="2" VerticalScrollBarVisibility="Auto">
+            <ListBox x:Name="FileExplorer"  Background="#FF292929" FontFamily="Cascadia Code" BorderThickness="0,0,0,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" RequestBringIntoView="RequestBringIntoView">
+                <ListBox.ItemContainerStyle>
+                    <Style TargetType="{x:Type ListBoxItem}">
+                        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+                        <Setter Property="Template">
+                            <Setter.Value>
+                                <ControlTemplate TargetType="{x:Type ListBoxItem}">
+                                    <ContentPresenter/>
+                                </ControlTemplate>
+                            </Setter.Value>
+                        </Setter>
+                    </Style>
+                </ListBox.ItemContainerStyle>
+            </ListBox>
+        </ScrollViewer>
     </Grid>
 </UserControl>

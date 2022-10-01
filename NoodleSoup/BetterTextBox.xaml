@@ -6,8 +6,7 @@
              xmlns:local="clr-namespace:NoodleSoup"
              mc:Ignorable="d"
              TextOptions.TextFormattingMode="Display">
-    <ScrollViewer x:Name="MainScrollViewer" ScrollChanged="MainScrollViwer_ScrollChanged" VerticalScrollBarVisibility="Auto">
-
+    <ScrollViewer x:Name="MainScrollViewer" Template="{StaticResource StylishScrollViewer}" ScrollChanged="MainScrollViwer_ScrollChanged" VerticalScrollBarVisibility="Auto">
         <Grid x:Name="MainGrid">
 
             <Grid.ColumnDefinitions>
