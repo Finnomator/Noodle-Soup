@@ -4,6 +4,6 @@
              xmlns:local="clr-namespace:NoodleSoup"
              StartupUri="MainWindow.xaml">
     <Application.Resources>
-         
+        <ResourceDictionary Source="Resources/Scrollbar.xaml"/>
     </Application.Resources>
 </Application>

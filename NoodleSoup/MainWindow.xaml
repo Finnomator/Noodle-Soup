@@ -13,6 +13,7 @@
 
     <Window.Resources>
 
+
         <ControlTemplate x:Key="CleanButton" TargetType="Button">
             <Label x:Name="ButtonLabel" Content="{TemplateBinding Content}" FontSize="{TemplateBinding FontSize}" Foreground="White" Padding="5,1,5,1" BorderThickness="1,1,1,1" BorderBrush="#00000000"/>
 
@@ -62,7 +63,6 @@
 
             </ControlTemplate.Triggers>
         </ControlTemplate>
-
 
     </Window.Resources>
 
