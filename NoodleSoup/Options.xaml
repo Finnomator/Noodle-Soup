@@ -12,12 +12,12 @@
         <ComboBox xmlns:agent="clr-namespace:Styles" x:Name="ComPortBox" HorizontalAlignment="Left" Margin="134,107,0,0" VerticalAlignment="Top" Width="85" DropDownOpened="OpenPortBox" SelectedIndex="0" DropDownClosed="ClosePortBox">
             <agent:ComPortItem/>
         </ComboBox>
-        <Button Content="Apply" Margin="0,0,10,10" Click="ApplyClick" Height="24" VerticalAlignment="Bottom" HorizontalAlignment="Right" Width="88"/>
+        <Button Content="Apply" Margin="0,0,10,10" Click="ApplyClick" Template="{StaticResource CleanButton}" Padding="0,0,0,0" HorizontalAlignment="Right" Width="88" Height="24" VerticalAlignment="Bottom"/>
         <Label x:Name="AmpyStatus" Content="Adafruit Ampy: Not Installed" HorizontalAlignment="Left" Margin="34,209,0,0" VerticalAlignment="Top" Foreground="White"/>
-        <Button x:Name="InstallAmpyBut" Content="Install" HorizontalAlignment="Left" Margin="219,212,0,0" VerticalAlignment="Top" Click="InstallAmpyClick"/>
+        <Button x:Name="InstallAmpyBut" Content="Install" Template="{StaticResource CleanButton}" HorizontalAlignment="Left" Margin="219,212,0,0" VerticalAlignment="Top" Click="InstallAmpyClick"/>
         <Label x:Name="PythonStatus" Content="Python: Not Installed" HorizontalAlignment="Left" Margin="34,178,0,0" VerticalAlignment="Top" Foreground="White"/>
-        <Button x:Name="InstallPythonBut" Content="Install" HorizontalAlignment="Left" Margin="219,181,0,0" VerticalAlignment="Top" Click="InstallPythonClick"/>
-        <Button x:Name="InstallPythonBut_Copy" Content="&#x21bb;" HorizontalAlignment="Left" Margin="219,107,0,0" VerticalAlignment="Top" Click="RefreshClick" Height="22" Width="35"/>
+        <Button x:Name="InstallPythonBut" Content="Install" Template="{StaticResource CleanButton}" HorizontalAlignment="Left" Margin="219,181,0,0" VerticalAlignment="Top" Click="InstallPythonClick"/>
+        <Button Content="↻" Template="{StaticResource CleanButton}" HorizontalAlignment="Left" Margin="219,107,0,0" VerticalAlignment="Top" Click="RefreshClick" Height="22" Width="35"/>
         <Label Content="Settings" VerticalAlignment="Top" Foreground="White" FontWeight="Bold" FontSize="48" HorizontalContentAlignment="Center"/>
 
     </Grid>

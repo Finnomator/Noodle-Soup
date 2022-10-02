@@ -6,26 +6,33 @@
              xmlns:local="clr-namespace:NoodleSoup" xmlns:sys="clr-namespace:System;assembly=mscorlib"
              mc:Ignorable="d"
              TextOptions.TextFormattingMode="Display">
-    <Grid>
+    <Grid Background="#FF383838">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <TextBox x:Name="PathBox" IsReadOnly="True" FontSize="10" Text="Path" Foreground="White" Background="#FF292929" TextWrapping="Wrap" BorderThickness="0"/>
-        <Grid Grid.Row="1" Background="#FF292929">
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width ="*"/>
-                <ColumnDefinition Width="*"/>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Button Content="&#x1f4c1;" Click="AddDir_Click"/>
-            <Button Grid.Column="1" Content="&#x1f4c4;" Click="AddFile_Click"/>
-            <Button Grid.Column="2" Content="&#x21bb;" Click="RefreshClick"/>
-        </Grid>
+        <TextBox x:Name="PathBox" IsReadOnly="True" FontSize="10" Text="Path" Foreground="White" TextWrapping="Wrap" BorderThickness="0" Background="{x:Null}"/>
+        <Border Grid.Row="1" BorderThickness="0,1,0,1" BorderBrush="#FF909090">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="*"/>
+                </Grid.ColumnDefinitions>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
+                    <Button Template="{StaticResource CleanButton}" Content="&#x1f4c1;" Click="AddDir_Click"/>
+                    <Button Template="{StaticResource CleanButton}" Content="&#x1f4c4;" Click="AddFile_Click"/>
+                </StackPanel>
+
+                <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right">
+                    <Button Template="{StaticResource CleanButton}" Content="&#x21bb;" Click="RefreshClick"/>
+                </StackPanel>
+            </Grid>
+        </Border>
+
         <ScrollViewer Template="{StaticResource StylishScrollViewer}" Grid.Row="2" VerticalScrollBarVisibility="Auto">
-            <ListBox x:Name="FileExplorer"  Background="#FF292929" FontFamily="Cascadia Code" BorderThickness="0,0,0,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" RequestBringIntoView="RequestBringIntoView">
+            <ListBox x:Name="FileExplorer" FontFamily="Cascadia Code" BorderThickness="0,0,0,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" ScrollViewer.VerticalScrollBarVisibility="Disabled" RequestBringIntoView="RequestBringIntoView" Background="{x:Null}">
                 <ListBox.ItemContainerStyle>
                     <Style TargetType="{x:Type ListBoxItem}">
                         <Setter Property="HorizontalContentAlignment" Value="Stretch"/>

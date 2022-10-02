@@ -11,61 +11,6 @@
         WindowStartupLocation="CenterScreen"
         Title="Noodle Soup" Height="650" Width="1080" Closed="WindowCloses" WindowStyle="None" AllowsTransparency="True" Background="{x:Null}" Foreground="{x:Null}" MouseLeftButtonDown="Window_LeftMouseDowm" StateChanged="Window_StateChange">
 
-    <Window.Resources>
-
-
-        <ControlTemplate x:Key="CleanButton" TargetType="Button">
-            <Label x:Name="ButtonLabel" Content="{TemplateBinding Content}" FontSize="{TemplateBinding FontSize}" Foreground="White" Padding="5,1,5,1" BorderThickness="1,1,1,1" BorderBrush="#00000000"/>
-
-            <ControlTemplate.Triggers>
-
-                <Trigger Property = "IsMouseOver" Value = "True">
-                    <Setter TargetName = "ButtonLabel" Property = "Background">
-                        <Setter.Value>
-                            <SolidColorBrush Color="White" Opacity="0.2"/>
-                        </Setter.Value>
-                    </Setter>
-                    <Setter TargetName = "ButtonLabel" Property = "BorderBrush">
-                        <Setter.Value>
-                            <SolidColorBrush Color="White" Opacity="0.2"/>
-                        </Setter.Value>
-                    </Setter>
-                </Trigger>
-
-                <Trigger Property="IsEnabled" Value="False">
-                    <Setter TargetName = "ButtonLabel" Property = "Foreground">
-                        <Setter.Value>
-                            <SolidColorBrush Color="White" Opacity="0.3"/>
-                        </Setter.Value>
-                    </Setter>
-                </Trigger>
-
-            </ControlTemplate.Triggers>
-        </ControlTemplate>
-
-
-        <ControlTemplate x:Key="WindowControlTemplate" TargetType="Button">
-
-            <Label x:Name="ButtonLabel" Content="{TemplateBinding Content}" HorizontalAlignment="Right" Width="37" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0,0,0,0">
-                <Label.Foreground>
-                    <SolidColorBrush Color="White"/>
-                </Label.Foreground>
-            </Label>
-            <ControlTemplate.Triggers>
-
-                <Trigger Property = "IsMouseOver" Value = "True">
-                    <Setter TargetName = "ButtonLabel" Property = "Background">
-                        <Setter.Value>
-                            <SolidColorBrush Color="White" Opacity="0.2"/>
-                        </Setter.Value>
-                    </Setter>
-                </Trigger>
-
-            </ControlTemplate.Triggers>
-        </ControlTemplate>
-
-    </Window.Resources>
-
     <WindowChrome.WindowChrome>
         <WindowChrome CaptionHeight="0"/>
     </WindowChrome.WindowChrome>
@@ -77,18 +22,18 @@
             <Grid.RowDefinitions>
                 <RowDefinition Height="61"/>
                 <RowDefinition/>
-                <RowDefinition Height="4"/>
+                <RowDefinition Height="3"/>
                 <RowDefinition Height="100"/>
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="150"/>
-                <ColumnDefinition Width="4"/>
+                <ColumnDefinition Width="3"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
 
             <GridSplitter Width="4" Panel.ZIndex="1" Grid.Column="1" Grid.RowSpan="3" Background="#FF353535" HorizontalAlignment="Center" Grid.Row="1"/>
-            <local:SideFileExplorer x:Name="FileExplorer" Grid.Row="1" Grid.RowSpan="3"/>
+            <local:SideFileExplorer x:Name="FileExplorer" Grid.Row="1" Grid.RowSpan="3" Loaded="FileExplorer_Loaded"/>
             <local:IntegratedTerminal x:Name="Terminal" Grid.Row="3" Grid.Column="2"/>
             <Grid Grid.Row="1" Grid.Column="2">
 
@@ -102,19 +47,19 @@
                 <local:BetterTextBox x:Name="GoodTextBox" Grid.Row="1" Panel.ZIndex="1"/>
             </Grid>
             <Grid x:Name="TitleBar" Grid.ColumnSpan="3" Background="#FF444444" Height="23" VerticalAlignment="Top">
-                <Button Template="{StaticResource WindowControlTemplate}" Click="CloseClick" HorizontalAlignment="Right" Panel.ZIndex="1" Content="&#x1f5d9;"/>
-                <Button Template="{StaticResource WindowControlTemplate}" Margin="0,0,74,0" Click="MinimizeClick" HorizontalAlignment="Right" Content="&#x1f5d5;"/>
-                <Button Template="{StaticResource WindowControlTemplate}" Margin="0,0,37,0" Click="MaximiseClick" HorizontalAlignment="Right" Content="&#x1f5d7;" x:Name="MaximizeButton"/>
+                <Button Template="{StaticResource WindowControlTemplate}" Click="CloseClick" HorizontalAlignment="Right" Panel.ZIndex="1" Content="&#x1f5d9;" Margin="0,-3,-3,0"/>
+                <Button Template="{StaticResource WindowControlTemplate}" Margin="0,-3,71,0" Click="MinimizeClick" HorizontalAlignment="Right" Content="&#x1f5d5;"/>
+                <Button Template="{StaticResource WindowControlTemplate}" Margin="0,-3,34,0" Click="MaximiseClick" Content="&#x1f5d7;" x:Name="MaximizeButton" HorizontalAlignment="Right"/>
                 <Label Content="Noodle Soup" HorizontalAlignment="Left" VerticalAlignment="Center" Height="23" Foreground="White" VerticalContentAlignment="Center" Padding="5,3,5,5"/>
             </Grid>
             <Grid x:Name="ToolBar" Grid.ColumnSpan="3" Margin="0,23,0,0" Background="#FF545454">
-                <Button Content="Open File" Template="{StaticResource CleanButton}" Click="OpenFileClick" Margin="0,19,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" />
-                <Button Content="Save" Template="{StaticResource CleanButton}" Margin="62,19,0,0" Click="SaveClick" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                <Button Content="Options" Template="{StaticResource CleanButton}" Click="OptionsClick" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                <Button Content="Save as" Template="{StaticResource CleanButton}" Margin="98,19,0,0" Click="SaveAsClick" HorizontalAlignment="Left" VerticalAlignment="Top"/>
-                <Button x:Name="RunBut" Template="{StaticResource CleanButton}" Content="Run" Click="RunScriptClick" HorizontalAlignment="Right" Margin="0,19,0,0"/>
-                <Button x:Name="StopBut" Template="{StaticResource CleanButton}" Content="Stop" Click="StopScriptClick" HorizontalAlignment="Right" IsEnabled="False" Margin="0,19,97,0"/>
-                <Button x:Name="RunNormalBut" Template="{StaticResource CleanButton}" Content="Run Local" Click="RunPythonScriptClick" HorizontalAlignment="Right" Margin="0,19,33,0"/>
+                <Button Content="Open File" Template="{StaticResource CleanButton}" Click="OpenFileClick" Margin="0,19,0,0" HorizontalAlignment="Left" VerticalAlignment="Top" Height="19" Padding="5,1,5,1" />
+                <Button Content="Save" Template="{StaticResource CleanButton}" Margin="60,19,0,0" Click="SaveClick" HorizontalAlignment="Left" VerticalAlignment="Top" Height="19" Padding="5,1,5,1"/>
+                <Button Content="Options" Template="{StaticResource CleanButton}" Click="OptionsClick" HorizontalAlignment="Left" VerticalAlignment="Top" Height="19" Padding="5,1,5,1"/>
+                <Button Content="Save as" Template="{StaticResource CleanButton}" Margin="94,19,0,0" Click="SaveAsClick" HorizontalAlignment="Left" VerticalAlignment="Top" Height="19" Padding="5,1,5,1"/>
+                <Button x:Name="RunBut" Template="{StaticResource CleanButton}" Content="Run" Click="RunScriptClick" HorizontalAlignment="Right" Padding="5,1,5,1" Height="19" VerticalAlignment="Bottom"/>
+                <Button x:Name="StopBut" Template="{StaticResource CleanButton}" Content="Stop" Click="StopScriptClick" HorizontalAlignment="Right" IsEnabled="False" Margin="0,0,93,0" Padding="5,1,5,1" Height="19" VerticalAlignment="Bottom"/>
+                <Button x:Name="RunNormalBut" Template="{StaticResource CleanButton}" Content="Run Local" Click="RunPythonScriptClick" HorizontalAlignment="Right" Margin="0,0,31,0" Padding="5,1,5,1" Height="19" VerticalAlignment="Bottom"/>
             </Grid>
             <GridSplitter Grid.Row="2" HorizontalAlignment="Stretch" Panel.ZIndex="1" Grid.Column="2" Background="#FF353535"/>
         </Grid>
