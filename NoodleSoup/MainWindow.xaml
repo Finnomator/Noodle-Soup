@@ -33,7 +33,7 @@
             </Grid.ColumnDefinitions>
 
             <GridSplitter Width="4" Panel.ZIndex="1" Grid.Column="1" Grid.RowSpan="3" Background="#FF353535" HorizontalAlignment="Center" Grid.Row="1"/>
-            <local:SideFileExplorer x:Name="FileExplorer" Grid.Row="1" Grid.RowSpan="3" Loaded="FileExplorer_Loaded"/>
+            <local:SideFileExplorer x:Name="FileExplorer" Grid.Row="1" Grid.RowSpan="3"/>
             <local:IntegratedTerminal x:Name="Terminal" Grid.Row="3" Grid.Column="2"/>
             <Grid Grid.Row="1" Grid.Column="2">
 

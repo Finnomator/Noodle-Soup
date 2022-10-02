@@ -238,9 +238,5 @@ namespace NoodleSoup {
             else
                 MaximizeButton.Content = "🗗";
         }
-
-        private void FileExplorer_Loaded(object sender, RoutedEventArgs e) {
-
-        }
     }
 }
