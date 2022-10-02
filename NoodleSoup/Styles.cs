@@ -8,28 +8,26 @@ using System.Windows.Input;
 using System.Windows.Media;
 
 namespace Styles {
-    public class CodyButton : Button {
-        public CodyButton() : base() { }
-    }
 
+    public class CleanButton : Button {
+        public CleanButton() : base() {
+            Template = FindResource("CleanButton") as ControlTemplate;
+        }
+
+    }
     public class FileButton : DirectoryButton {
         public FileButton() : base() { }
     }
 
-    public class DirectoryButton : Button {
+    public class DirectoryButton : CleanButton {
 
         public static Brush BackgroundColor;
         public static Brush SelectedColor;
 
         public DirectoryButton() : base() {
-            Margin = new Thickness(0, 0, 0, 0);
-            BorderThickness = new Thickness(0, 0, 0, 0);
-            Padding = new Thickness(0, 0, 0, 0);
             FontSize = 10;
-            FontFamily = new FontFamily("Cascadia Mono");
             HorizontalContentAlignment = HorizontalAlignment.Left;
             HorizontalAlignment = HorizontalAlignment.Stretch;
-            BorderThickness = new Thickness(0, 0, 0, 0);
             Foreground = new SolidColorBrush(Color.FromRgb(255, 255, 255));
             Background = new SolidColorBrush(Color.FromRgb(80, 80, 80));
             BackgroundColor = Background;
@@ -39,8 +37,8 @@ namespace Styles {
 
     public class TabItemButton : Grid {
 
-        public Button selectButton;
-        public Button closeButton;
+        public CleanButton selectButton;
+        public CleanButton closeButton;
 
         public TabItemButton(string title) : base() {
 
@@ -48,44 +46,26 @@ namespace Styles {
             ColumnDefinitions.Add(new ColumnDefinition());
             ColumnDefinitions.Add(new ColumnDefinition());
 
-            selectButton = new Button {
+            selectButton = new CleanButton {
                 Content = title,
-                Background = Brushes.Transparent,
                 Tag = this,
-                Foreground = Brushes.White,
-                Padding = new Thickness(1, 0, 3, 0),
-                BorderThickness = new Thickness(0, 0, 0, 0),
-                FontSize = 10,
+                FontSize = 11,
+                BorderThickness = new Thickness(0),
             };
 
-            closeButton = new Button {
+            closeButton = new CleanButton {
                 Content = "🗙",
-                Foreground = Brushes.White,
-                BorderThickness = new Thickness(0, 2, 0, 2),
-                FontSize = 9,
-                Background = null,
                 Tag = this,
-                HorizontalContentAlignment = HorizontalAlignment.Center,
+                FontSize = 11,
+                BorderThickness = new Thickness(0),
                 VerticalContentAlignment = VerticalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                HorizontalAlignment = HorizontalAlignment.Center,
             };
-
-            selectButton.MouseEnter += SelectButton_MouseEnter;
-            selectButton.MouseLeave += SelectButton_MouseLeave;
 
             selectButton.SetValue(Grid.ColumnProperty, 0);
             closeButton.SetValue(Grid.ColumnProperty, 1);
 
             Children.Add(closeButton);
             Children.Add(selectButton);
-
-        }
-
-        private void SelectButton_MouseLeave(object sender, MouseEventArgs e) {
-        }
-
-        private void SelectButton_MouseEnter(object sender, MouseEventArgs e) {
         }
     }
 
@@ -100,7 +80,7 @@ namespace Styles {
         SolidColorBrush selectedBrush = new SolidColorBrush(Color.FromArgb(255, 150, 150, 150));
         SolidColorBrush unselectedBrush = new SolidColorBrush(Color.FromArgb(255, 100, 100, 100));
         SolidColorBrush borderBrush = Brushes.Gray;
-        StackPanel mainPanel= new StackPanel();
+        StackPanel mainPanel = new StackPanel();
         ScrollViewer scrollViewer = new ScrollViewer();
         public string typingWord = "";
         public string[] possibleWords = KeyWords.keywords.Concat(KeyWords.buildtIns).ToArray();

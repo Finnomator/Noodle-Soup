@@ -1,5 +1,4 @@
-﻿using Styles;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -247,7 +246,7 @@ namespace NoodleSoup {
             IsExpanded = !IsExpanded;
 
             if (IsExpanded) {
-                Content = "V " + DirName;
+                Content = "˅ " + DirName;
                 AddChildrenToBox();
             } else {
                 Content = "> " + DirName;

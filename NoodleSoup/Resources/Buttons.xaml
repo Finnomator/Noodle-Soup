@@ -1,0 +1,52 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+    <ControlTemplate x:Key="CleanButton" TargetType="Button">
+        <Border x:Name="ButtonBorder" BorderThickness="0" CornerRadius="3" Background="#0FFFFFFF">
+            <Label x:Name="ButtonLabel" Content="{TemplateBinding Content}" FontSize="{TemplateBinding FontSize}" Foreground="White" Padding="{TemplateBinding Padding}"
+               VerticalContentAlignment="{TemplateBinding VerticalContentAlignment}" HorizontalContentAlignment="{TemplateBinding HorizontalContentAlignment}"
+               BorderThickness="0"
+               />
+        </Border>
+
+        <ControlTemplate.Triggers>
+            <Trigger Property = "IsMouseOver" Value = "True">
+                <Setter TargetName = "ButtonBorder" Property = "Background">
+                    <Setter.Value>
+                        <SolidColorBrush Color="White" Opacity="0.2"/>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+
+            <Trigger Property="IsEnabled" Value="False">
+                <Setter TargetName = "ButtonLabel" Property = "Foreground">
+                    <Setter.Value>
+                        <SolidColorBrush Color="White" Opacity="0.4"/>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+
+    <ControlTemplate x:Key="WindowControlTemplate" TargetType="Button">
+
+        <Label x:Name="ButtonLabel" Content="{TemplateBinding Content}" HorizontalAlignment="Right" Width="37" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0,0,0,0">
+            <Label.Foreground>
+                <SolidColorBrush Color="White"/>
+            </Label.Foreground>
+        </Label>
+
+        <ControlTemplate.Triggers>
+
+            <Trigger Property = "IsMouseOver" Value = "True">
+                <Setter TargetName = "ButtonLabel" Property = "Background">
+                    <Setter.Value>
+                        <SolidColorBrush Color="White" Opacity="0.2"/>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+</ResourceDictionary>
