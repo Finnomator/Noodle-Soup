@@ -315,7 +315,7 @@ namespace NoodleSoup {
                         int row = i + scroll_viewer_row_offset;
 
                         if (trimedLine.StartsWith("#")) {
-                            TextGrid.Children.Add(new LabelText(line.TrimStart(), row, line.Length - line.TrimStart().Length, KeyWords.commentsColor));
+                            TextGrid.Children.Add(new LabelText(line.TrimStart(), row, line.Length - line.TrimStart().Length, KeyWords.CommentsColor));
                             continue;
                         }
 
@@ -328,11 +328,11 @@ namespace NoodleSoup {
                         }
 
                         foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Ints"])) {
-                            TextGrid.Children.Add(new LabelText(word.Item1, row, word.Item2, ColorDict.Get(word.Item1)));
+                            TextGrid.Children.Add(new LabelText(word.Item1, row, word.Item2, ColorDict.IntegerColor));
                         }
 
                         foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Floats"])) {
-                            TextGrid.Children.Add(new LabelText(word.Item1, row, word.Item2, ColorDict.Get(word.Item1)));
+                            TextGrid.Children.Add(new LabelText(word.Item1, row, word.Item2, ColorDict.FloatColor));
                         }
                     }
 

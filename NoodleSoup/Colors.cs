@@ -47,8 +47,8 @@ namespace Colors {
         protected static SolidColorBrush keywordsColor = Brushes.Violet;
         protected static SolidColorBrush builtInsColor = new SolidColorBrush(Color.FromRgb(0xfc, 0xfa, 0x79));
         protected static SolidColorBrush defaultColor = Brushes.White;
-        public readonly static SolidColorBrush integerColor = new SolidColorBrush(Color.FromRgb(224, 197, 153));
-        public readonly static SolidColorBrush commentsColor = Brushes.Green;
+        public readonly static SolidColorBrush IntegerColor = new SolidColorBrush(Color.FromRgb(224, 197, 153));
+        public readonly static SolidColorBrush CommentsColor = Brushes.Green;
         public readonly static SolidColorBrush FloatColor = new SolidColorBrush(Color.FromRgb(255, 244, 128));
     }
 
