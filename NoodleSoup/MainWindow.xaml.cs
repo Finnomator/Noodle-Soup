@@ -67,7 +67,7 @@ namespace NoodleSoup {
             if (SaveFile())
                 TabControler.RemoveTab(tab);
 
-            if (TabControler.MainGrid.Children.Count == 0)
+            if (TabControler.MainPanel.Children.Count == 0)
                 OpenFile(tempFilePath);
         }
 

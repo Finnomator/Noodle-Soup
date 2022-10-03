@@ -5,7 +5,5 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NoodleSoup"
              mc:Ignorable="d" ScrollViewer.HorizontalScrollBarVisibility="Auto" ScrollViewer.VerticalScrollBarVisibility="Disabled">
-    <ScrollViewer HorizontalScrollBarVisibility="Auto" VerticalScrollBarVisibility="Disabled">
-        <Grid x:Name="MainGrid" Background="#FF3E3E3E"/>
-    </ScrollViewer>
+    <StackPanel x:Name="MainPanel" Background="#FF3E3E3E" Orientation="Horizontal"/>
 </UserControl>

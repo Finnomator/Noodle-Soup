@@ -5,7 +5,6 @@ using System.Windows.Controls;
 namespace NoodleSoup {
     public partial class TabControl : UserControl {
 
-        int TotalWidth = 0;
         public delegate void UserChangesSelectionHandler(object sender, EventArgs e);
         public event UserChangesSelectionHandler OnUserChangesSelection;
 
@@ -18,35 +17,21 @@ namespace NoodleSoup {
 
         public void AddTab(string path) {
 
-            TabItem tabItem = new TabItem(path) {
-                Margin = new Thickness(TotalWidth, 0, 0, 0)
-            };
+            TabItem tabItem = new TabItem(path);
             tabItem.closeButton.Click += CloseFileClick;
             tabItem.selectButton.Click += TabItemClick;
 
-            MainGrid.Children.Add(tabItem);
+            MainPanel.Children.Add(tabItem);
 
             Select(tabItem);
-
-            tabItem.Measure(new Size(double.PositiveInfinity, double.PositiveInfinity));
-            tabItem.Arrange(new Rect(tabItem.DesiredSize));
-            TotalWidth += (int) tabItem.ActualWidth;
         }
 
         public void RemoveTab(TabItem tab) {
 
-            MainGrid.Children.Remove(tab);
+            MainPanel.Children.Remove(tab);
 
-            TotalWidth -= (int) tab.ActualWidth;
-
-            int width = 0;
-            foreach (TabItem tabItem in MainGrid.Children) {
-                tabItem.Margin = new Thickness(width, 0, 0, 0);
-                width += (int) tabItem.ActualWidth;
-            }
-
-            if (tab.isSelected && MainGrid.Children.Count > 0) {
-                TabItem tabItem = (TabItem) MainGrid.Children[0];
+            if (tab.isSelected && MainPanel.Children.Count > 0) {
+                TabItem tabItem = (TabItem) MainPanel.Children[0];
                 OnUserChangesSelection(tabItem, new EventArgs());
                 Select(tabItem);
             }
@@ -58,7 +43,7 @@ namespace NoodleSoup {
 
         public void Select(string path) {
             bool found = false;
-            foreach (TabItem tabItem in MainGrid.Children) {
+            foreach (TabItem tabItem in MainPanel.Children) {
                 if (path == tabItem.Path) {
                     if (!tabItem.isSelected) {
                         tabItem.Select();
@@ -80,7 +65,7 @@ namespace NoodleSoup {
             if (clickedItem.isSelected)
                 return;
 
-            foreach (TabItem tabItem in MainGrid.Children) {
+            foreach (TabItem tabItem in MainPanel.Children) {
                 if (tabItem == clickedItem) {
                     tabItem.Select();
                 } else {
@@ -95,7 +80,7 @@ namespace NoodleSoup {
         }
 
         public bool Contains(string path) {
-            foreach (TabItem tabItem in MainGrid.Children) {
+            foreach (TabItem tabItem in MainPanel.Children) {
                 if (path == tabItem.Path)
                     return true;
             }
