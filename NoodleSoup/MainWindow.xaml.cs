@@ -225,11 +225,15 @@ namespace NoodleSoup {
         }
 
         private void Window_SizeChanged(object sender, SizeChangedEventArgs e) {
-            if (WindowState == WindowState.Maximized)
-                EdgeBorder.BorderThickness = new Thickness(8);
-            else
-                EdgeBorder.BorderThickness = new Thickness(3);
-
+            if (WindowState == WindowState.Maximized) {
+                MainGrid.Margin = new Thickness(7);
+                TitleBarBorder.CornerRadius = BottomBorder.CornerRadius = new CornerRadius(0);
+            } else {
+                MainGrid.Margin = new Thickness(0.5);
+                EdgeBorder.CornerRadius = new CornerRadius(8);
+                TitleBarBorder.CornerRadius = new CornerRadius(8, 8, 0, 0);
+                BottomBorder.CornerRadius = new CornerRadius(0, 0, 8, 8);
+            }
         }
 
         private void Window_StateChange(object sender, EventArgs e) {

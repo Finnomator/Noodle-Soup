@@ -30,11 +30,7 @@
 
     <ControlTemplate x:Key="WindowControlTemplate" TargetType="Button">
 
-        <Label x:Name="ButtonLabel" Content="{TemplateBinding Content}" HorizontalAlignment="Right" Width="37" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0,0,0,0">
-            <Label.Foreground>
-                <SolidColorBrush Color="White"/>
-            </Label.Foreground>
-        </Label>
+        <Label x:Name="ButtonLabel" Content="{TemplateBinding Content}" HorizontalAlignment="Right" Width="37" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0,0,0,0" Foreground="White"/>
 
         <ControlTemplate.Triggers>
 
@@ -42,6 +38,25 @@
                 <Setter TargetName = "ButtonLabel" Property = "Background">
                     <Setter.Value>
                         <SolidColorBrush Color="White" Opacity="0.2"/>
+                    </Setter.Value>
+                </Setter>
+            </Trigger>
+
+        </ControlTemplate.Triggers>
+    </ControlTemplate>
+
+    <ControlTemplate x:Key="WindowControlCloseButton" TargetType="Button">
+
+        <Border x:Name="ButtonBorder" CornerRadius="0,8,0,0" Width="37" HorizontalAlignment="Right">
+            <Label Content="&#x1f5d9;"  VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Padding="0,0,0,0" Foreground="White"/>
+        </Border>
+
+        <ControlTemplate.Triggers>
+
+            <Trigger Property = "IsMouseOver" Value = "True">
+                <Setter TargetName = "ButtonBorder" Property = "Background">
+                    <Setter.Value>
+                        <SolidColorBrush Color="#FFFF2C2C"/>
                     </Setter.Value>
                 </Setter>
             </Trigger>
