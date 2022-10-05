@@ -21,12 +21,12 @@
                 <RowDefinition Height="61"/>
                 <RowDefinition/>
                 <RowDefinition Height="3"/>
-                <RowDefinition Height="132"/>
+                <RowDefinition Height="132" MinHeight="36"/>
                 <RowDefinition Height="8"/>
             </Grid.RowDefinitions>
 
             <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="150"/>
+                <ColumnDefinition Width="150" MinWidth="50"/>
                 <ColumnDefinition Width="3"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>

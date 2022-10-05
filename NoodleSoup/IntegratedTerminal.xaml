@@ -5,15 +5,13 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:NoodleSoup"
              mc:Ignorable="d">
-    <Grid>
+    <Grid MinHeight="36">
         <Grid.RowDefinitions>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <ScrollViewer x:Name="OutputScroller" Template="{StaticResource StylishScrollViewer}" VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto" VerticalAlignment="Stretch">
-
-
-            <TextBox x:Name="OutputTextBlock" IsReadOnly="True" Foreground="White" Background="#FF333333" FontFamily="Cascadia Code" BorderBrush="#FF333333"/>
+        <ScrollViewer x:Name="OutputScroller" Template="{StaticResource StylishScrollViewer}" VerticalScrollBarVisibility="Auto" VerticalAlignment="Stretch">
+            <TextBox x:Name="OutputTextBlock" IsReadOnly="True" Foreground="White" Background="#FF333333" FontFamily="Cascadia Code" BorderBrush="#FF333333" TextWrapping="Wrap"/>
         </ScrollViewer>
 
         <Border Grid.Row="1" BorderThickness="1" BorderBrush="Aqua">

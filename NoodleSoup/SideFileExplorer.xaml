@@ -16,16 +16,12 @@
         <TextBox x:Name="PathBox" IsReadOnly="True" FontSize="10" Text="Path" Foreground="White" TextWrapping="Wrap" BorderThickness="0" Background="{x:Null}"/>
         <Border Grid.Row="1" BorderThickness="0,1,0,1" BorderBrush="#FF909090">
             <Grid>
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Left" >
                     <Button Template="{StaticResource CleanButton}" Content="&#x1f4c1;" Click="AddDir_Click"/>
                     <Button Template="{StaticResource CleanButton}" Content="&#x1f4c4;" Click="AddFile_Click"/>
                 </StackPanel>
 
-                <StackPanel Orientation="Horizontal" Grid.Column="1" HorizontalAlignment="Right">
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right">
                     <Button Template="{StaticResource CleanButton}" Content="&#x21bb;" Click="RefreshClick"/>
                 </StackPanel>
             </Grid>
