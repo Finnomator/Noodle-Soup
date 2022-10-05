@@ -6,11 +6,11 @@
 
 ## Coder Box
 
-- [x] Fix Highlighting
-- [ ] Add Icons to Suggestions
+- [x] Fix highlighting
+- [ ] Add icons to suggestions
 - [x] Fix typingWord being "" when in word
 - [ ] Fix use of Strg Z
-- [ ] Add more Text suggestions
+- [ ] Add more text suggestions
 - [ ] Fix words not detected by regex
 
 ### Improve Performance
@@ -21,10 +21,10 @@
 
 ## Generel
 
-- [ ] Nicer Scrollbars
+- [x] Nicer Scrollbars
 - [ ] Progressbar for indexing progress
 - [ ] Add light-/darkmode toggle
 
 ## Integrated Terminal
 
-- [ ] Fix Input/Output
+- [ ] Fix input/output
