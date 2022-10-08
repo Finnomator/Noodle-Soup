@@ -54,7 +54,7 @@ namespace NoodleSoup {
 
         private void GoodTextBox_HotkeyPressed(object sender, HotkeyEventArgs e) {
             if (e.PressedKeys.Length == 2) {
-                if (e.PressedKeys.Contains(Key.LeftCtrl) && e.PressedKeys.Contains(Key.S))
+                if ((e.PressedKeys.Contains(Key.LeftCtrl) || e.PressedKeys.Contains(Key.RightCtrl)) && e.PressedKeys.Contains(Key.S))
                     SaveFile();
             }
         }

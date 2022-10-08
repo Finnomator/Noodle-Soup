@@ -68,7 +68,7 @@ namespace Styles {
             Children.Add(selectButton);
         }
     }
-
+    /*
     public class SuggestionBox : Border {
 
         public delegate void ClickedSuggestion(object sender, System.EventArgs e);
@@ -201,7 +201,7 @@ namespace Styles {
             selectedButton.Background = selectedBrush;
             scrollViewer.ScrollToVerticalOffset((selectedButtonIdx - 6) * selectedButton.ActualHeight);
         }
-    }
+    }*/
 
 
     public class ComPortItem : ComboBoxItem {

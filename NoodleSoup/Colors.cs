@@ -74,5 +74,9 @@ namespace Colors {
                 return colorDict[key];
             return defaultColor;
         }
+
+        public static bool ContainsWord(string word) {
+            return colorDict.ContainsKey(word);
+        }
     }
 }

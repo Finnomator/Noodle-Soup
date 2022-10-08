@@ -17,9 +17,8 @@ namespace NoodleSoup {
         public delegate void HotkeyHandler(object sender, HotkeyEventArgs e);
         public event HotkeyHandler HotkeyPressed;
 
-        private SuggestionBox suggestionBox = new SuggestionBox();
         private string typingWord = "";
-        private Dictionary<string, string> PatternMap = new Dictionary<string, string> {
+        private readonly Dictionary<string, string> PatternMap = new Dictionary<string, string> {
             ["Words"] = @"[^\W\d](\w|[-']{1,2}(?=\w))*",
             ["Ints"] = @"\b\d+\b",
             ["Floats"] = @"\d+\.\d+",
@@ -27,14 +26,12 @@ namespace NoodleSoup {
         };
         private bool IgnoreWarning = false;
         private bool BeginnIndexing = false;
-        private int TextBoxRowHeight = 16;
-        private int TextBoxColumnWidth = 8;
+        private readonly int TextBoxRowHeight = 16;
+        private readonly int TextBoxColumnWidth = 8;
 
         public BetterTextBox() {
             InitializeComponent();
-            suggestionBox.SuggestionClick += SuggestionButtonClick;
-            Grid.SetColumn(suggestionBox, 1);
-            MainGrid.Children.Add(suggestionBox);
+            SuggestionBox.SuggestionClick += SuggestionButtonClick;
             LinesBox.Tag = 1;
             HotkeyPressed += BetterTextBox_HotkeyPressed;
             Thread Indexer = new Thread(new ThreadStart(Indexing));
@@ -61,47 +58,10 @@ namespace NoodleSoup {
                 if (Ctrl) {
                     switch (other_key) {
                         case Key.Space:
-                            suggestionBox.Update(typingWord,
+                            SuggestionBox.Update(GetWordAtIndex(MainTextBox.CaretIndex),
                                                  GetColOfIndex(MainTextBox.CaretIndex - 1, text) * TextBoxColumnWidth + TextBoxColumnWidth,
                                                  GetRowOfIndex(MainTextBox.CaretIndex - 1, text) * TextBoxRowHeight + TextBoxRowHeight,
                                                  true);
-                            break;
-                        case Key.A:
-                            MainTextBox.SelectAll();
-
-                            break;
-                        case Key.Back:
-                            CutOutString(MainTextBox.CaretIndex - typingWord.Length, MainTextBox.CaretIndex);
-                            typingWord = "";
-                            break;
-                        case Key.C:
-                            if (MainTextBox.SelectionLength > 0)
-                                Clipboard.SetText(MainTextBox.SelectedText);
-                            break;
-                        case Key.V:
-                            if (MainTextBox.SelectionLength > 0)
-                                CutOutString(MainTextBox.SelectionStart, MainTextBox.SelectionStart + MainTextBox.SelectionLength);
-                            InsertAtCaret(Clipboard.GetText());
-                            break;
-                        case Key.X:
-                            string selected_text = MainTextBox.SelectedText;
-                            if (selected_text != "") {
-                                Clipboard.SetText(selected_text);
-                                CutOutString(MainTextBox.SelectionStart, MainTextBox.SelectionStart + MainTextBox.SelectionLength);
-                            }
-                            break;
-                        case Key.Left:
-                            int old_idx = MainTextBox.CaretIndex;
-                            int w_len = GetWordLeftOfIndex(old_idx).Length;
-                            MainTextBox.CaretIndex -= w_len < 1 && old_idx != 0 ? 1 : w_len;
-
-                            if (old_idx == MainTextBox.CaretIndex && MainTextBox.CaretIndex - 2 > -1)
-                                MainTextBox.CaretIndex -= 2;
-
-                            break;
-                        case Key.Right:
-                            int wr_len = GetWordRightOfIndex(MainTextBox.CaretIndex).Length;
-                            MainTextBox.CaretIndex += wr_len < 1 ? 1 : wr_len;
                             break;
                     }
                 }
@@ -118,6 +78,8 @@ namespace NoodleSoup {
 
         public void CutOutString(int start, int end) {
             string text = MainTextBox.Text;
+            if (text[start] == '\n')
+                start--;
             MainTextBox.Text = text.Substring(0, start) + text.Substring(end);
             MainTextBox.CaretIndex = start;
         }
@@ -243,7 +205,7 @@ namespace NoodleSoup {
         }
 
         private void InsertSelectedSuggestionButton() {
-            string toInsert = (string) suggestionBox.selectedButton.Content;
+            string toInsert = SuggestionBox.GetSelectedText();
             int left_len = GetWordLeftOfIndex(MainTextBox.CaretIndex).Length;
             int right_len = GetWordRightOfIndex(MainTextBox.CaretIndex).Length;
             CutOutString(MainTextBox.CaretIndex - left_len, MainTextBox.CaretIndex + right_len);
@@ -305,14 +267,19 @@ namespace NoodleSoup {
                     string[] lines = displayed_text.Split('\n');
                     int scroll_viewer_row_offset = GetScrollViewerRowOffset();
 
+                    LinesBox.Text = new string('\n', scroll_viewer_row_offset);
+
+
                     for (int i = 0; i < lines.Length; i++) {
                         string line = lines[i].Replace("\r", "");
                         string trimedLine = line.Trim();
 
+                        int row = i + scroll_viewer_row_offset;
+
+                        LinesBox.Text += row + 1 + "\n";
+
                         if (trimedLine.Length == 0)
                             continue;
-
-                        int row = i + scroll_viewer_row_offset;
 
                         if (trimedLine.StartsWith("#")) {
                             TextGrid.Children.Add(new LabelText(line.TrimStart(), row, line.Length - line.TrimStart().Length, KeyWords.CommentsColor));
@@ -320,12 +287,14 @@ namespace NoodleSoup {
                         }
 
                         foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Words"])) {
-                            TextGrid.Children.Add(new LabelText(word.Item1, row, word.Item2, ColorDict.Get(word.Item1)));
+                            if (ColorDict.ContainsWord(word.Item1))
+                                TextGrid.Children.Add(new LabelText(word.Item1, row, word.Item2, ColorDict.Get(word.Item1)));
                         }
 
+                        /*
                         foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Special Chars"])) {
                             TextGrid.Children.Add(new LabelText(word.Item1, row, word.Item2, ColorDict.Get(word.Item1)));
-                        }
+                        }*/
 
                         foreach (Tuple<string, int> word in GetMatches(line, PatternMap["Ints"])) {
                             TextGrid.Children.Add(new LabelText(word.Item1, row, word.Item2, ColorDict.IntegerColor));
@@ -336,13 +305,6 @@ namespace NoodleSoup {
                         }
                     }
 
-                    typingWord = GetWordAtIndex(MainTextBox.CaretIndex);
-
-                    if (GetLine(GetRowOfIndex(MainTextBox.CaretIndex - 1, text), text).TrimStart().StartsWith("#"))
-                        typingWord = "";
-
-                    suggestionBox.Update(typingWord, GetColOfIndex(MainTextBox.CaretIndex - 1, text) * TextBoxColumnWidth + TextBoxColumnWidth, GetRowOfIndex(MainTextBox.CaretIndex - 1, text) * TextBoxRowHeight + TextBoxRowHeight);
-
                     BeginnIndexing = false;
 
                 }));
@@ -350,47 +312,37 @@ namespace NoodleSoup {
         }
 
         private void TextChange(object sender, TextChangedEventArgs e) {
+            string text = MainTextBox.Text;
+            int carteIndex = MainTextBox.CaretIndex;
+            typingWord = GetWordAtIndex(carteIndex);
+            if (GetLine(GetRowOfIndex(carteIndex - 1, text), text).TrimStart().StartsWith("#"))
+                typingWord = "";
+            SuggestionBox.Update(typingWord, (GetColOfIndex(carteIndex - 1, text) + 1) * TextBoxColumnWidth, (GetRowOfIndex(carteIndex - 1, text) + 1) * TextBoxRowHeight);
             BeginnIndexing = true;
-
-            string Text = GetText();
-            string[] lines = Text.Split('\n');
-
-            int linesBoxDelta = lines.Length - (int) LinesBox.Tag;
-            LinesBox.Tag = lines.Length;
-
-            if (linesBoxDelta != 0) {
-                int last_length = lines.Length.ToString().Length;
-                LinesBox.Text = new string('0', last_length - 1) + "1\n";
-                for (int i = 2; i < lines.Length + 1; i++) {
-                    LinesBox.Text += new string('0', last_length - i.ToString().Length) + i + "\n";
-                }
-            }
         }
-
-
         private void TextBox_KeyDown(object sender, KeyEventArgs e) {
 
             switch (e.Key) {
                 case Key.Up:
-                    if (suggestionBox.isOpen && suggestionBox.selectedButton != null) {
-                        suggestionBox.GoUp();
+                    if (SuggestionBox.IsOpen && SuggestionBox.SelectedButton != null) {
+                        SuggestionBox.GoUp();
                         e.Handled = true;
                     }
                     break;
                 case Key.Down:
-                    if (suggestionBox.isOpen) {
-                        suggestionBox.GoDown();
+                    if (SuggestionBox.IsOpen) {
+                        SuggestionBox.GoDown();
                         e.Handled = true;
                     }
                     break;
                 case Key.Tab:
-                    if (suggestionBox.isOpen) {
+                    if (SuggestionBox.IsOpen) {
                         string toInsert;
-                        if (suggestionBox.sugButtons.Count == 1) {
-                            toInsert = (string) suggestionBox.sugButtons[0].Content;
+                        if (SuggestionBox.SugButtons.Count == 1) {
+                            toInsert = (string) SuggestionBox.SugButtons[0].Content;
                             toInsert = toInsert.Substring(typingWord.Length);
                             InsertAtCaret(toInsert);
-                        } else if (suggestionBox.selectedButton != null) {
+                        } else {
                             InsertSelectedSuggestionButton();
                         }
                     } else {
@@ -400,7 +352,7 @@ namespace NoodleSoup {
                     e.Handled = true;
                     break;
                 case Key.Return:
-                    if (suggestionBox.isOpen && suggestionBox.selectedButton != null) {
+                    if (SuggestionBox.IsOpen) {
                         InsertSelectedSuggestionButton();
                         e.Handled = true;
                     }
@@ -424,7 +376,6 @@ namespace NoodleSoup {
                 default:
                     if (PressesStrg()) {
                         HotkeyPressed(this, new HotkeyEventArgs(GetAllPressedKeys()));
-                        e.Handled = true;
                     }
                     break;
             }
@@ -451,25 +402,8 @@ namespace NoodleSoup {
             return Keyboard.IsKeyDown(Key.LeftCtrl) || Keyboard.IsKeyDown(Key.LeftCtrl);
         }
 
-        private void Box_PreviewTextInput(object sender, TextCompositionEventArgs e) {
-            if (IgnoreWarning || e.Text.Length != 1)
-                return;
-
-            int asciiByte = Encoding.ASCII.GetBytes(e.Text[0].ToString())[0];
-
-            if (asciiByte < 256)
-                return;
-
-            MessageBoxResult messageBoxResult = MessageBox.Show($"The character ('{e.Text}') you typed may not be supported by the IDE/Font. Insert Anyway?", "Error", MessageBoxButton.YesNo, MessageBoxImage.Warning);
-            if (messageBoxResult == MessageBoxResult.No) {
-                e.Handled = true;
-            } else {
-                IgnoreWarning = true;
-            }
-        }
-
         private void MainTextBox_LostFocus(object sender, RoutedEventArgs e) {
-            suggestionBox.Close();
+            SuggestionBox.Close();
         }
 
         private void MainScrollViwer_ScrollChanged(object sender, ScrollChangedEventArgs e) {
