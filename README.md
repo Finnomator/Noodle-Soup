@@ -17,7 +17,7 @@ A simple and very basic IDE for Python, designed to be easy to use with Micropyt
 
 ### Execution on a Microcontroller
 
-**Note: Only exection on a `Raspberry Pi Pico W` is officially supported yet.**
+**Note: Only execution on a `Raspberry Pi Pico W` is officially supported yet.**
 
 - Select a COM port in the options
 - Click "Run" in the top right
