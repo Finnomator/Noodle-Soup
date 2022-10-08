@@ -3,7 +3,7 @@
 
 A simple and very basic IDE for Python, designed to be easy to use with Micropython and a microcontroller.
 
-## ⚠️As of state the program is still unfinished and not ready to use!⚠️
+## ⚠️As of state the program is an in early alpha stage!⚠️
 
 ## Installation
 
